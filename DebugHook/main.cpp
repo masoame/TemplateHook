@@ -12,5 +12,6 @@ int main(int argc, wchar_t* argv[], wchar_t* envp[])
 	}
 	DebugHook::InjectDll(a->th32ProcessID, L"DllHook");
 
+
 	return 0;
 }
