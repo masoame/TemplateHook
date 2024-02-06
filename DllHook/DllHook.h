@@ -5,9 +5,9 @@ using PVEH = PVECTORED_EXCEPTION_HANDLER;
 namespace DllHook
 {
 #ifndef _WIN64
-	std::shared_ptr<DWORD32[]> GetFuncArgs(CONTEXT* ct, DWORD32 argc);
+	std::unique_ptr<DWORD32[]> GetFuncArgs(CONTEXT* ct, DWORD32 argc);
 #else
-	std::shared_ptr<DWORD64[]> GetFuncArgs(CONTEXT* ct, DWORD64 argc);
+	std::unique_ptr<DWORD64[]> GetFuncArgs(CONTEXT* ct, DWORD64 argc);
 #endif
 	//INT3¶Ïµã
 	struct INT3Hook
@@ -21,7 +21,7 @@ namespace DllHook
 		LPBYTE Address;
 		BYTE Original;
 
-		INT3Hook(LPVOID Address);
+		INT3Hook(LPVOID Address, PVEH backcall = nullptr);
 		~INT3Hook();
 		//¼Ó¹³×Ó
 		BOOL Hook(LPVOID Address = nullptr, PVEH backcall = nullptr);

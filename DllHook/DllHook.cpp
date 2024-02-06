@@ -3,11 +3,11 @@
 namespace DllHook
 {
 #ifndef _WIN64
-	std::shared_ptr<DWORD32[]> GetFuncArgs(CONTEXT* ct, DWORD32 argc)
+	std::unique_ptr<DWORD32[]> GetFuncArgs(CONTEXT* ct, DWORD32 argc)
 	{
 		if (ct == nullptr) return nullptr;
 
-		std::shared_ptr<DWORD32[]> args(new  DWORD32[argc + 1]);
+		std::unique_ptr<DWORD32[]> args(new  DWORD32[argc + 1]);
 
 		for (DWORD32 i = 0; i != argc; i++)
 		{
@@ -16,11 +16,11 @@ namespace DllHook
 		return args;
 	}
 #else
-	std::shared_ptr<DWORD64[]> GetFuncArgs(CONTEXT* ct, DWORD64 argc)
+	std::unique_ptr<DWORD64[]> GetFuncArgs(CONTEXT* ct, DWORD64 argc)
 	{
 		if (ct == nullptr) return nullptr;
 
-		std::shared_ptr<DWORD64[]> args(new  DWORD64[argc + 1 + (argc % 5) * 2]);
+		std::unique_ptr<DWORD64[]> args(new  DWORD64[argc + 1 + (argc < 5 ? argc : 4) * 2]);
 
 		switch (argc)
 		{
@@ -76,10 +76,16 @@ namespace DllHook
 			if (INT3Hook::HandleVEH) std::cout << "VEH¿ªÆô³É¹¦" << std::endl;
 		});
 
-	INT3Hook::INT3Hook(LPVOID Address)
+	INT3Hook::INT3Hook(LPVOID Address,PVEH backcall)
 	{
 		this->Address = (LPBYTE)Address;
 		this->Original = NULL;
+		if (Address && backcall)
+		{
+			tb_m.lock();
+			tb[Address] = backcall;
+			tb_m.unlock();
+		}
 	}
 	INT3Hook::~INT3Hook()
 	{
@@ -89,19 +95,20 @@ namespace DllHook
 	}
 	BOOL INT3Hook::Hook(LPVOID Address, PVEH backcall)
 	{
+		std::lock_guard<std::mutex> lg(INT3Hook::tb_m);
+
 		if (!Address && !this->Address) return false;
 		else if (Address) this->Address = (LPBYTE)Address;
-		this->Original = *this->Address;
+
+		if (backcall) tb[this->Address] = backcall;
+		if (tb.find(this->Address) == tb.end()) return false;
 
 		DWORD temp;
 		VirtualProtect(this->Address, 1, PAGE_EXECUTE_READWRITE, &temp);
-		*this->Address = 0xCC;
 
-		if (backcall)
-		{
-			std::lock_guard<std::mutex> lg(INT3Hook::tb_m);
-			tb[this->Address] = backcall;
-		}
+		if (*this->Address == 0xCC) return true;
+		this->Original = *this->Address;
+		*this->Address = 0xCC;
 
 		return true;
 	}
