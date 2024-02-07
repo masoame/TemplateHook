@@ -8,6 +8,7 @@
 #include<cassert>
 #include<regex>
 #include<mutex>
+#include<sstream>
 
 #include<WinSock2.h>
 #include<windows.h>

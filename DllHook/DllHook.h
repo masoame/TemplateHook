@@ -9,6 +9,11 @@ namespace DllHook
 #else
 	std::unique_ptr<DWORD64[]> GetFuncArgs(CONTEXT* ct,DWORD64 argc);
 #endif
+	//std::unique_ptr<std::string> GetImportTable(HMODULE hm);
+	std::unique_ptr<std::stringstream> GetExportDirectory(HMODULE hModule);
+
+
+
 	//INT3¶Ïµã
 	struct INT3Hook
 	{

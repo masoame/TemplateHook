@@ -1,16 +1,16 @@
 ﻿#include"DllHook.h"
 #include"registry.h"
 
-DllHook::INT3Hook INT3WriteFile((LPVOID)WriteFile, [](_EXCEPTION_POINTERS* info)
-	{
-		std::thread([]
-			{
-				Sleep(0);
-				INT3WriteFile.Hook();
-			}).detach();
-		INT3WriteFile.UnHook();
-		return (LONG)EXCEPTION_CONTINUE_EXECUTION;
-	});
+//DllHook::INT3Hook INT3WriteFile((LPVOID)WriteFile, [](_EXCEPTION_POINTERS* info)
+//	{
+//		std::thread([]
+//			{
+//				Sleep(0);
+//				INT3WriteFile.Hook();
+//			}).detach();
+//		INT3WriteFile.UnHook();
+//		return (LONG)EXCEPTION_CONTINUE_EXECUTION;
+//	});
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)
 {

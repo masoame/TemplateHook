@@ -50,8 +50,33 @@ namespace DllHook
 		}
 		return args;
 	}
-#endif
 
+#endif
+	std::unique_ptr<std::stringstream> GetExportDirectory(HMODULE hModule)
+	{
+		if (hModule == nullptr)return nullptr;
+
+		PIMAGE_DOS_HEADER DosHeader = (PIMAGE_DOS_HEADER)hModule;
+		if (DosHeader->e_magic != 0x5A4D) return nullptr;
+		IMAGE_NT_HEADERS* NtHeader = (IMAGE_NT_HEADERS*)((DWORD64)hModule + DosHeader->e_lfanew);
+		if (NtHeader->Signature != 0x4550) return nullptr;
+
+		IMAGE_EXPORT_DIRECTORY* ExpDir = (IMAGE_EXPORT_DIRECTORY*)((DWORD64)hModule + NtHeader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress);
+
+		int16_t* OrdinalDir = (int16_t*)((DWORD64)hModule + ExpDir->AddressOfNameOrdinals);
+		DWORD32* NameDir = (DWORD32*)((DWORD64)hModule + ExpDir->AddressOfNames);
+		DWORD32* FunctionDir = (DWORD32*)((DWORD64)hModule + ExpDir->AddressOfFunctions);
+		std::unique_ptr<std::stringstream> ExpDirMsg(new std::stringstream);
+
+
+		for (int i = 0; i != ExpDir->NumberOfNames; i++)
+		{
+			*ExpDirMsg << i << " Address: " << (LPVOID) FunctionDir[OrdinalDir[i]] << " " << (LPCSTR)((DWORD64)hModule + NameDir[i]) << std::endl;
+		}
+
+
+		return ExpDirMsg;
+	}
 	std::map<LPVOID, PVEH> INT3Hook::tb;
 	std::mutex INT3Hook::tb_m;
 	LPVOID INT3Hook::HandleVEH;
