@@ -7,12 +7,12 @@ namespace DllHook
 #ifndef _WIN64
 	std::unique_ptr<DWORD32[]> GetFuncArgs(CONTEXT* ct, DWORD32 argc);
 #else
-	std::unique_ptr<DWORD64[]> GetFuncArgs(CONTEXT* ct, DWORD64 argc);
+	std::unique_ptr<DWORD64[]> GetFuncArgs(CONTEXT* ct,DWORD64 argc);
 #endif
 	//INT3¶Ïµã
 	struct INT3Hook
 	{
-		static std::thread INT3HookStratThread;
+		static std::thread INT3HookStartThread;
 		static std::mutex tb_m;
 		static std::map<LPVOID, PVEH> tb;
 		static LPVOID HandleVEH;
@@ -22,11 +22,11 @@ namespace DllHook
 		BYTE Original;
 
 		INT3Hook(LPVOID Address, PVEH backcall = nullptr);
-		~INT3Hook();
+		virtual ~INT3Hook();
 		//¼Ó¹³×Ó
 		BOOL Hook(LPVOID Address = nullptr, PVEH backcall = nullptr);
 		//ÍÑ¹³
-		BOOL UnHook();
+		BOOL UnHook()const;
 	};
 
 	//¼Ä´æÆ÷¶Ïµã

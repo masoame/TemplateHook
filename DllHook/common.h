@@ -3,10 +3,7 @@
 #include"defs.h"
 #include<iostream>
 #include<filesystem>
-#include<optional>
-#include<tuple>
 #include<map>
-#include<set>
 #include<thread>
 #include<cassert>
 #include<regex>

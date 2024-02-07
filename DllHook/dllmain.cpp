@@ -1,4 +1,5 @@
 ﻿#include"DllHook.h"
+#include"registry.h"
 
 DllHook::INT3Hook INT3WriteFile((LPVOID)WriteFile, [](_EXCEPTION_POINTERS* info)
 	{
@@ -16,7 +17,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
 	switch (ul_reason_for_call)
 	{
 	case DLL_PROCESS_ATTACH:
-		INT3WriteFile.Hook();
+
 		break;
 	case DLL_THREAD_ATTACH:
 		//std::cout << "dll线程创建" << std::endl;
@@ -27,6 +28,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
 		break;
 	case DLL_PROCESS_DETACH:
 
+		DllHook::INT3Hook::INT3HookStartThread.join();
 		break;
 	}
 	return TRUE;

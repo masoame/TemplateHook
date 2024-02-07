@@ -56,9 +56,10 @@ namespace DllHook
 	std::mutex INT3Hook::tb_m;
 	LPVOID INT3Hook::HandleVEH;
 
-	std::thread INT3Hook::INT3HookStratThread([]
+	std::thread INT3Hook::INT3HookStartThread([]
 		{
-			std::cout << "开启VEH..." << std::endl;
+			std::cout << "VEH_ThreadId: " << GetCurrentThreadId() << std::endl;
+			
 			INT3Hook::HandleVEH = AddVectoredExceptionHandler(1, [](_EXCEPTION_POINTERS* ExceptionInfo)
 				{
 					std::lock_guard<std::mutex> lg(INT3Hook::tb_m);
@@ -72,14 +73,16 @@ namespace DllHook
 					}
 					return (LONG)EXCEPTION_CONTINUE_SEARCH;
 				});
-
-			if (INT3Hook::HandleVEH) std::cout << "VEH开启成功" << std::endl;
 		});
 
 	INT3Hook::INT3Hook(LPVOID Address,PVEH backcall)
 	{
 		this->Address = (LPBYTE)Address;
 		this->Original = NULL;
+		if (this->Address == nullptr) return;
+
+		DWORD temp;
+		VirtualProtect(this->Address, 1, PAGE_EXECUTE_READWRITE, &temp);
 		if (Address && backcall)
 		{
 			tb_m.lock();
@@ -89,6 +92,8 @@ namespace DllHook
 	}
 	INT3Hook::~INT3Hook()
 	{
+		if (this->Address == nullptr) return;
+
 		std::lock_guard<std::mutex> lg(INT3Hook::tb_m);
 		UnHook();
 		if (tb.find(this->Address) != tb.end()) tb.erase(this->Address);
@@ -112,7 +117,7 @@ namespace DllHook
 
 		return true;
 	}
-	BOOL INT3Hook::UnHook()
+	inline BOOL INT3Hook::UnHook() const
 	{
 		*this->Address = this->Original;
 		return 0;
