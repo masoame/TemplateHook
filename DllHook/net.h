@@ -6,5 +6,20 @@ namespace net
 	extern SOCKET serverSock;
 	extern sockaddr_in address;
 
-	extern BOOL init(const char* ip, u_short port);
+	extern std::thread StartClient;
+
+	enum Request :byte
+	{
+		OSMessage
+	};
+
+
+	struct TCPFrame
+	{
+		const byte magic = 0x0721;
+		Request type;
+		int64_t FrameSize;
+	};
+
+
 }
