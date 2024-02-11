@@ -36,12 +36,11 @@ namespace registry
 					<< L"InstallLocation: " << imf.install << std::endl
 					<< L"UninstallString: " << imf.unstall << std::endl << std::endl;
 			}
-			Lab_01:
+		Lab_01:
 			Namelen = MAX_PATH;
 			RegCloseKey(valkey);
 		}
 		RegCloseKey(reskey);
-
 
 		dwIndex = 0;
 		if (RegOpenKeyExW(HKEY_CURRENT_USER, (LPCWSTR)&keypath, NULL, KEY_ALL_ACCESS, &reskey) != ERROR_SUCCESS) return FALSE;
@@ -76,6 +75,5 @@ namespace registry
 
 	void CommonMessageBack(SOCKET* tcp)
 	{
-
 	}
 }

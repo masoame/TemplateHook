@@ -11,7 +11,7 @@ namespace DebugHook
 		PROCESSENTRY32 pe32{};
 		pe32.dwSize = sizeof(pe32);
 		AutoHandle hProcessSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-		if (hProcessSnap == INVALID_HANDLE_VALUE) return {};
+		if (hProcessSnap == INVALID_HANDLE_VALUE) return nullptr;
 
 		BOOL bMore = ::Process32First(hProcessSnap, &pe32);
 
@@ -33,7 +33,7 @@ namespace DebugHook
 		MODULEENTRY32 pe32{};
 		pe32.dwSize = sizeof(pe32);
 		AutoHandle hProcessSnap = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE | TH32CS_SNAPMODULE32, th32ProcessID);
-		if (hProcessSnap == INVALID_HANDLE_VALUE) return {};
+		if (hProcessSnap == INVALID_HANDLE_VALUE) return nullptr;
 		BOOL bMore = ::Module32First(hProcessSnap, &pe32);
 
 		while (bMore)
@@ -65,11 +65,11 @@ namespace DebugHook
 	//搜索对应进程的模块并返回相应信息
 	std::unique_ptr<MODULEENTRY32> SearchModule(DWORD th32ProcessID, const wchar_t* ModuleName)
 	{
-		std::unique_ptr<MODULEENTRY32> pe32(new MODULEENTRY32{});
+		std::unique_ptr<MODULEENTRY32> pe32(new MODULEENTRY32);
 
 		pe32->dwSize = sizeof(*pe32);
 		AutoHandle hProcessSnap = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, th32ProcessID);
-		if (hProcessSnap == INVALID_HANDLE_VALUE) return {};
+		if (hProcessSnap == INVALID_HANDLE_VALUE) return nullptr;
 
 		BOOL bMore = ::Module32First(hProcessSnap, pe32.get());
 
