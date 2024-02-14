@@ -1,5 +1,4 @@
 ﻿#include"DllHook.h"
-#include"net.h"
 #include"registry.h"
 
 DllHook::INT3Hook INT3WriteFile((LPVOID)0x7FF6D0A2DBDC, [](_EXCEPTION_POINTERS* info)
@@ -30,7 +29,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
 		//std::cout << "dll线程销毁" << std::endl;
 		break;
 	case DLL_PROCESS_DETACH:
-		
+
 		DllHook::INT3Hook::INT3HookStartThread.join();
 		net::StartClient.join();
 

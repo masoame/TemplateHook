@@ -85,12 +85,14 @@ namespace DllHook
 		for (int i = 0; i != ExpDir->NumberOfNames; i++)
 			*ExpDirMsg << "Address: " << (LPVOID)FunctionDir[OrdinalDir[i]] << " " << (LPCSTR)((DWORD64)hModule + NameDir[i]) << std::endl;
 		
-		return ExpDirMsg;
-	}
+
+
 
 	//------------------------------------------------------------------------------------------------------------------------------------------------
 
 	std::map<LPVOID, PVECTORED_EXCEPTION_HANDLER> INT3Hook::tb;
+	}
+	std::map<LPVOID, PVEH> INT3Hook::tb;
 	std::mutex INT3Hook::tb_m;
 	LPVOID INT3Hook::HandleVEH;
 
@@ -111,9 +113,9 @@ namespace DllHook
 					}
 					return (LONG)EXCEPTION_CONTINUE_SEARCH;
 				});
-		});
-
 	INT3Hook::INT3Hook(const LPVOID Address,const PVECTORED_EXCEPTION_HANDLER backcall)
+
+	INT3Hook::INT3Hook(LPVOID Address,PVEH backcall)
 	{
 		this->Address = (LPBYTE)Address;
 		this->Original = NULL;
@@ -134,9 +136,9 @@ namespace DllHook
 
 		std::lock_guard<std::mutex> lg(INT3Hook::tb_m);
 		UnHook();
-		if (tb.find(this->Address) != tb.end()) tb.erase(this->Address);
-	}
 	BOOL INT3Hook::Hook(const LPVOID Address,const PVECTORED_EXCEPTION_HANDLER backcall)
+	}
+	BOOL INT3Hook::Hook(LPVOID Address, PVEH backcall)
 	{
 		std::lock_guard<std::mutex> lg(INT3Hook::tb_m);
 
