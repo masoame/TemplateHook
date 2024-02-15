@@ -85,6 +85,7 @@ namespace DllHook
 		for (int i = 0; i != ExpDir->NumberOfNames; i++)
 			*ExpDirMsg << "Address: " << (LPVOID)FunctionDir[OrdinalDir[i]] << " " << (LPCSTR)((DWORD64)hModule + NameDir[i]) << std::endl;	
 	}
+
 	//------------------------------------------------------------------------------------------------------------------------------------------------
 	std::map<LPVOID, PVECTORED_EXCEPTION_HANDLER> INT3Hook::tb;
 	std::mutex INT3Hook::tb_m;
