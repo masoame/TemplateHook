@@ -83,7 +83,30 @@ namespace DllHook
 		std::unique_ptr<std::stringstream> ExpDirMsg(new std::stringstream);
 
 		for (int i = 0; i != ExpDir->NumberOfNames; i++)
-			*ExpDirMsg << "Address: " << (LPVOID)FunctionDir[OrdinalDir[i]] << " " << (LPCSTR)((DWORD64)hModule + NameDir[i]) << std::endl;	
+			*ExpDirMsg << "Address: " << (LPVOID)FunctionDir[OrdinalDir[i]] << " " << (LPCSTR)((DWORD64)hModule + NameDir[i]) << std::endl;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------------
+	inline bool DebugAddressRegister::__Dr6::GetBits(type local) const
+	{
+		return static_cast<bool>(dr6 & local);
+	}
+
+	void DebugAddressRegister::__Dr7::SetBits(const type local, unsigned char bits)
+	{
+		bits &= 0b11;
+		dr7 &= ~(0b11 << local);
+		dr7 |= (bits << local);
+	}
+
+	inline void DebugAddressRegister::operator=(const CONTEXT& context)
+	{
+		this->Dr0 = context.Dr0;
+		this->Dr1 = context.Dr1;
+		this->Dr2 = context.Dr2;
+		this->Dr3 = context.Dr3;
+		this->Dr6 = context.Dr6;
+		this->Dr7 = context.Dr7;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------------------------------------
@@ -93,8 +116,6 @@ namespace DllHook
 
 	std::thread INT3Hook::INT3HookStartThread([]
 		{
-			std::cout << "VEH_ThreadId: " << GetCurrentThreadId() << std::endl;
-
 			INT3Hook::HandleVEH = AddVectoredExceptionHandler(1, [](_EXCEPTION_POINTERS* ExceptionInfo)
 				{
 					std::lock_guard<std::mutex> lg(INT3Hook::tb_m);
@@ -160,13 +181,49 @@ namespace DllHook
 
 	//-----------------------------------------------------------------------------------------------------------------------
 
-	std::mutex tb_m;
-	std::map<LPVOID, PVECTORED_EXCEPTION_HANDLER> tb;
-	LPVOID HandleVEH;
+	LPVOID RegisterHook::HandleVEH = nullptr;
+	DebugAddressRegister RegisterHook::global_context = { 0 };
+	std::mutex RegisterHook::tb_m;
+	std::map<DWORD, RegisterHook> RegisterHook::tb;
 
-	std::thread RegisterHookStartThread([]
+
+	std::thread RegisterHook::RegisterHookStartThread([]
 		{
+			RegisterHook::HandleVEH = AddVectoredExceptionHandler(1, [](_EXCEPTION_POINTERS* ExceptionInfo)
+				{
+					
+					if (ExceptionInfo->ContextRecord->Dr6 & 0xf )
+					{
+						std::cout << "ThreadId: " << GetCurrentThreadId() << "Start debug" << std::endl;
+					}
+					return (LONG)EXCEPTION_CONTINUE_SEARCH;
+				});
 
+			THREADENTRY32 t32;
+			t32.dwSize = sizeof(THREADENTRY32);
+			CONTEXT TempContext;
+			DWORD localid = GetCurrentThreadId();
+
+			std::cout << "ChildrenThreadId: " << localid << std::endl;
+
+			AutoHandle hthreads = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
+			BOOL temp;
+
+			for ( temp = Thread32First(hthreads, &t32); temp; temp &= Thread32Next(hthreads, &t32))
+			{
+				
+				AutoHandle th = OpenThread(THREAD_ALL_ACCESS, FALSE, t32.th32ThreadID);
+				TempContext.ContextFlags = CONTEXT_DEBUG_REGISTERS;
+				if (localid == t32.th32ThreadID || GetCurrentProcessId()!=t32.th32OwnerProcessID) continue;
+				temp &= GetThreadContext(th, &TempContext);
+				TempContext.Dr0 = global_context.Dr0;
+				TempContext.Dr1 = global_context.Dr1;
+				TempContext.Dr2 = global_context.Dr2;
+				TempContext.Dr3 = global_context.Dr3;
+				TempContext.Dr7 = global_context.Dr7;
+				temp &= SetThreadContext(th, &TempContext);
+				std::cout << "HookThread: " << t32.th32ThreadID << std::endl;
+			}
 		});
 
 	RegisterHook::RegisterHook()
@@ -175,16 +232,16 @@ namespace DllHook
 	}
 	RegisterHook::~RegisterHook()
 	{
-
 	}
 	BOOL RegisterHook::Hook(LPVOID* Address)
 	{
-
 		return 0;
 	}
 	BOOL RegisterHook::UnHook()
 	{
-
 		return 0;
 	}
+
+
+
 }

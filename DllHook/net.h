@@ -13,13 +13,10 @@ namespace net
 		OSMessage
 	};
 
-
 	struct TCPFrame
 	{
 		const byte magic = 0x0721;
 		Request type;
 		int64_t FrameSize;
 	};
-
-
 }

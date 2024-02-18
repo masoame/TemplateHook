@@ -6,7 +6,6 @@ namespace net
 	sockaddr_in address{ 0 };
 
 	std::thread StartClient([] {
-
 		serverSock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 		if (serverSock != INVALID_SOCKET)
 		{
@@ -20,8 +19,6 @@ namespace net
 				return;
 			}
 		}
-
-		MessageBoxA(NULL, "Server connect error", "Error", MB_ICONERROR | MB_OK);;
-
+		std::cout << "ÍøÂçÁ¬½Ó´íÎó" << std::endl;
 		});
 }

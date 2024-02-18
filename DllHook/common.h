@@ -29,7 +29,6 @@ namespace os
 	}
 }
 
-
 struct PermissivePointer
 {
 	template <typename T>
