@@ -189,6 +189,8 @@ namespace DllHook
 
 	std::thread RegisterHook::RegisterHookStartThread([]
 		{
+			std::cout << "VEH_ThreadId: " << GetCurrentThreadId() << std::endl;
+
 			RegisterHook::HandleVEH = AddVectoredExceptionHandler(1, [](_EXCEPTION_POINTERS* ExceptionInfo)
 				{
 					
