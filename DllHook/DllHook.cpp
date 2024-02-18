@@ -55,15 +55,37 @@ namespace DllHook
 	std::unique_ptr<std::stringstream> GetImportDirectory(const HMODULE hModule)
 	{
 		if (hModule == nullptr)return nullptr;
-
+	
 		PIMAGE_DOS_HEADER DosHeader = (PIMAGE_DOS_HEADER)hModule;
 		if (DosHeader->e_magic != 0x5A4D) return nullptr;
-		IMAGE_NT_HEADERS* NtHeader = (IMAGE_NT_HEADERS*)((DWORD64)hModule + DosHeader->e_lfanew);
+		PIMAGE_NT_HEADERS NtHeader = (PIMAGE_NT_HEADERS)((AUTOWORD)hModule + DosHeader->e_lfanew);
 		if (NtHeader->Signature != 0x4550) return nullptr;
+		
 
-		IMAGE_EXPORT_DIRECTORY* ExpDir = (IMAGE_EXPORT_DIRECTORY*)((DWORD64)hModule + NtHeader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress);
+		PIMAGE_IMPORT_DESCRIPTOR ImpDir = (PIMAGE_IMPORT_DESCRIPTOR)((AUTOWORD)hModule + NtHeader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress);
+		if (ImpDir->Characteristics == 0) return nullptr;
+		PIMAGE_IMPORT_BY_NAME IBN;
+		PIMAGE_THUNK_DATA _IAT = (PIMAGE_THUNK_DATA)((AUTOWORD)hModule + ImpDir->FirstThunk); 
+		PIMAGE_THUNK_DATA _INT = (PIMAGE_THUNK_DATA)((AUTOWORD)hModule + ImpDir->OriginalFirstThunk);
+		
+		std::unique_ptr<std::stringstream> ImpDirMsg(new std::stringstream);
+		for (int i = 0;; i++)
+		{
+			if (_INT[i].u1.Ordinal == 0)break;
+			if (IMAGE_SNAP_BY_ORDINAL(_INT[i].u1.Ordinal))
+			{
+				*ImpDirMsg << "Ordinal: " << IMAGE_ORDINAL(_INT[i].u1.Ordinal) << std::endl;
+			}
+			else
+			{
+				IBN = (PIMAGE_IMPORT_BY_NAME)((AUTOWORD)(hModule)+_INT[i].u1.AddressOfData);
+				*ImpDirMsg << "FunctionName: " << (const char*)&(IBN->Name) << std::endl;
+			}
 
-		return std::unique_ptr<std::stringstream>();
+			*ImpDirMsg << (LPVOID)_IAT[i].u1.AddressOfData << std::endl;
+		}
+
+		return ImpDirMsg;
 	}
 	std::unique_ptr<std::stringstream> GetExportDirectory(const HMODULE hModule)
 	{
@@ -189,6 +211,8 @@ namespace DllHook
 
 	std::thread RegisterHook::RegisterHookStartThread([]
 		{
+			std::cout << "VEH_ThreadId: " << GetCurrentThreadId() << std::endl;
+
 			RegisterHook::HandleVEH = AddVectoredExceptionHandler(1, [](_EXCEPTION_POINTERS* ExceptionInfo)
 				{
 					

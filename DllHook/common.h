@@ -1,6 +1,7 @@
 #pragma once
 
 #include"defs.h"
+#include<fstream>
 #include<iostream>
 #include<filesystem>
 #include<map>
