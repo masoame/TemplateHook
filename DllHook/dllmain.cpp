@@ -9,9 +9,11 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
 	{
 	case DLL_PROCESS_ATTACH:
 		{
-			auto b = DllHook::GetImportDirectory(LoadLibraryA("DebugHook.exe"));
+			std::wcout.imbue(std::locale(""));
+			auto b = registry::GetInstallMsg();
 			if (b == nullptr)return TRUE;
-			std::cout << b->str();
+
+			std::wcout << b->str();
 		}
 
 		break;

@@ -31,20 +31,20 @@ namespace DllHook
 			}
 		case 4:
 			args[4] = ct->R9;
-			args[argc + 7] = ct->Xmm0.High;
-			args[argc + 8] = ct->Xmm0.Low;
+			args[argc + 7] = ct->Xmm0.Low;
+			args[argc + 8] = ct->Xmm0.High;
 		case 3:
 			args[3] = ct->R8;
-			args[argc + 5] = ct->Xmm0.High;
-			args[argc + 6] = ct->Xmm0.Low;
+			args[argc + 5] = ct->Xmm0.Low;
+			args[argc + 6] = ct->Xmm0.High;
 		case 2:
 			args[2] = ct->Rdx;
-			args[argc + 3] = ct->Xmm0.High;
-			args[argc + 4] = ct->Xmm0.Low;
+			args[argc + 3] = ct->Xmm0.Low;
+			args[argc + 4] = ct->Xmm0.High;
 		case 1:
 			args[1] = ct->Rcx;
-			args[argc + 1] = ct->Xmm0.High;
-			args[argc + 2] = ct->Xmm0.Low;
+			args[argc + 1] = ct->Xmm0.Low;
+			args[argc + 2] = ct->Xmm0.High;
 		case 0:
 			args[0] = *(DWORD64*)(ct->Rsp);
 		}

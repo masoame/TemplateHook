@@ -5,9 +5,9 @@ namespace DebugHook
 	size_t RVAtoFOA(LPVOID pFileBuffer, size_t RVA)
 	{
 		PIMAGE_DOS_HEADER pDosHeader = (PIMAGE_DOS_HEADER)pFileBuffer;
-		if (pDosHeader->e_magic != 0x5A4D) return -1;
+		if (pDosHeader->e_magic != 0x5A4D) return NULL;
 		PIMAGE_NT_HEADERS pNtHeader = (PIMAGE_NT_HEADERS)((DWORD64)pFileBuffer + pDosHeader->e_lfanew);
-		if (pNtHeader->Signature != 0x4550) return -1;
+		if (pNtHeader->Signature != 0x4550) return NULL;
 
 		PIMAGE_FILE_HEADER pFileHeader = &pNtHeader->FileHeader;
 		PIMAGE_OPTIONAL_HEADER pOptionHeader = &pNtHeader->OptionalHeader;
@@ -19,7 +19,7 @@ namespace DebugHook
 			if (RVA < pSectionHeader->PointerToRawData)//此时RVA==FOA判断FOA会不会溢出
 				return RVA;
 			else
-				return -1;
+				return NULL;
 		}
 		for (int i = 0; i < pFileHeader->NumberOfSections; i++)//循环遍历节表头
 		{
@@ -29,9 +29,9 @@ namespace DebugHook
 					return (RVA - pSectionHeader[i].VirtualAddress) + pSectionHeader[i].PointerToRawData;//确定节区后，计算FOA
 			}
 			else
-				return -1;
+				return NULL;
 		}
-		return -1;
+		return NULL;
 	}
 	//返回所有进程信息
 	std::unique_ptr<std::vector<PROCESSENTRY32>> ProcessInfo()
