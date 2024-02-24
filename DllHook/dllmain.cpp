@@ -11,7 +11,6 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
 		std::wcout.imbue(std::locale(""));
 		auto b = registry::GetSoftwareMsg();
 		if (b == nullptr)return TRUE;
-
 		std::wcout << b->str();
 	}
 

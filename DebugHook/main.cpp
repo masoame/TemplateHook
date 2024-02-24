@@ -1,10 +1,13 @@
 //包含用于调试头文件
 #include"DebugHook.h"
 
-int main(int argc, wchar_t* argv[], wchar_t* envp[])
+int main()
 {
-	LoadLibraryA("DllHook.dll");
-	system("pause");
+    LoadLibraryA("DllHook.dll");
 
-	return 0;
+
+
+
+    system("pause");
 }
+

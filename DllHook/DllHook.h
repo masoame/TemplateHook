@@ -11,19 +11,24 @@ namespace DllHook
 	std::unique_ptr<DWORD64[]> GetFuncArgs(const CONTEXT* ct, const DWORD64 argc);
 #endif
 
-	struct DebugAddressRegister
+	struct DebugRegister
 	{
 		AUTOWORD Dr0;
 		AUTOWORD Dr1;
 		AUTOWORD Dr2;
 		AUTOWORD Dr3;
+		enum type :AUTOWORD
+		{
+			LG0 = 0, LG1 = 2, LG2 = 4, LG3 = 6,
+			LEGE = 8, GD = 13,
+			LEN0 = 18, LEN1 = 22, LEN2 = 26, LEN3 = 30,
+			RW0 = 16, RW1 = 20, RW2 = 24, RW3 = 28,
+			//--------------------------------------------------------------------------------------------
+			B0 = 1, B1 = 1 << 1, B2 = 1 << 2, B3 = 1 << 3, BD = 1 << 13, BS = 1 << 14, BT = 1 << 15
+		};
 		struct __Dr6
 		{
 			AUTOWORD dr6;
-			enum type :AUTOWORD
-			{
-				B0 = 1, B1 = 1 << 1, B2 = 1 << 2, B3 = 1 << 3, BD = 1 << 13, BS = 1 << 14, BT = 1 << 15
-			};
 			operator AUTOWORD& () { return this->dr6; }
 			void operator=(const AUTOWORD& dr6) { this->dr6 = dr6; }
 			bool GetBits(type local) const;
@@ -31,18 +36,13 @@ namespace DllHook
 		struct __Dr7
 		{
 			AUTOWORD dr7;
-			enum type :unsigned char
-			{
-				LG0 = 0, LG1 = 2, LG2 = 4, LG3 = 6,
-				LEGE = 8, GD = 13,
-				LEN0 = 18, LEN1 = 22, LEN2 = 26, LEN3 = 30,
-				RW0 = 16, RW1 = 20, RW2 = 24, RW3 = 28
-			};
 			operator AUTOWORD& () { return this->dr7; }
 			void operator=(const AUTOWORD& dr7) { this->dr7 = dr7; }
 			void SetBits(const type local, unsigned char bits);
 		}Dr7;
-		void operator=(const CONTEXT& context);
+
+		DebugRegister() {}
+		DebugRegister(const CONTEXT& context);
 	};
 
 	std::unique_ptr<std::stringstream> GetImportDirectory(const HMODULE hModule);
@@ -71,16 +71,14 @@ namespace DllHook
 	{
 		static std::thread RegisterHookStartThread;
 		static LPVOID HandleVEH;
-		static DebugAddressRegister global_context;
-
+		static DebugRegister global_context;
 		static std::mutex tb_m;
-		static std::map<DWORD, RegisterHook> tb;
-		DWORD threadid;
-		DebugAddressRegister local_context;
+		static std::map<DWORD, DebugRegister> tb;
 
-		RegisterHook();
-		~RegisterHook();
-		BOOL Hook(LPVOID* Address);
-		BOOL UnHook();
+		DebugRegister local_context;
+
+		static BOOL global_reload();
+		static BOOL thread_reload();
+
 	};
 }

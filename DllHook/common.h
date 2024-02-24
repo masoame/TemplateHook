@@ -50,3 +50,10 @@ private:
 	struct HandleCleaner { void operator()(void* h) { if (h != INVALID_HANDLE_VALUE) HandleCloser()(PermissivePointer{ h }); } };
 	std::unique_ptr<void, HandleCleaner> h;
 };
+template<class KEY,class T>
+class ThreadSafeMap
+{
+	std::map<KEY, T> core_map;
+	std::mutex mtx;
+
+};
