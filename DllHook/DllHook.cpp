@@ -55,19 +55,18 @@ namespace DllHook
 	std::unique_ptr<std::stringstream> GetImportDirectory(const HMODULE hModule)
 	{
 		if (hModule == nullptr)return nullptr;
-	
+
 		PIMAGE_DOS_HEADER DosHeader = (PIMAGE_DOS_HEADER)hModule;
 		if (DosHeader->e_magic != 0x5A4D) return nullptr;
 		PIMAGE_NT_HEADERS NtHeader = (PIMAGE_NT_HEADERS)((AUTOWORD)hModule + DosHeader->e_lfanew);
 		if (NtHeader->Signature != 0x4550) return nullptr;
-		
 
 		PIMAGE_IMPORT_DESCRIPTOR ImpDir = (PIMAGE_IMPORT_DESCRIPTOR)((AUTOWORD)hModule + NtHeader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress);
 		if (ImpDir->Characteristics == 0) return nullptr;
 		PIMAGE_IMPORT_BY_NAME IBN;
-		PIMAGE_THUNK_DATA _IAT = (PIMAGE_THUNK_DATA)((AUTOWORD)hModule + ImpDir->FirstThunk); 
+		PIMAGE_THUNK_DATA _IAT = (PIMAGE_THUNK_DATA)((AUTOWORD)hModule + ImpDir->FirstThunk);
 		PIMAGE_THUNK_DATA _INT = (PIMAGE_THUNK_DATA)((AUTOWORD)hModule + ImpDir->OriginalFirstThunk);
-		
+
 		std::unique_ptr<std::stringstream> ImpDirMsg(new std::stringstream);
 		for (int i = 0;; i++)
 		{
@@ -208,15 +207,13 @@ namespace DllHook
 	std::mutex RegisterHook::tb_m;
 	std::map<DWORD, RegisterHook> RegisterHook::tb;
 
-
 	std::thread RegisterHook::RegisterHookStartThread([]
 		{
 			std::cout << "VEH_ThreadId: " << GetCurrentThreadId() << std::endl;
 
 			RegisterHook::HandleVEH = AddVectoredExceptionHandler(1, [](_EXCEPTION_POINTERS* ExceptionInfo)
 				{
-					
-					if (ExceptionInfo->ContextRecord->Dr6 & 0xf )
+					if (ExceptionInfo->ContextRecord->Dr6 & 0xf)
 					{
 						std::cout << "ThreadId: " << GetCurrentThreadId() << "Start debug" << std::endl;
 					}
@@ -233,12 +230,11 @@ namespace DllHook
 			AutoHandle hthreads = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
 			BOOL temp;
 
-			for ( temp = Thread32First(hthreads, &t32); temp; temp &= Thread32Next(hthreads, &t32))
+			for (temp = Thread32First(hthreads, &t32); temp; temp &= Thread32Next(hthreads, &t32))
 			{
-				
 				AutoHandle th = OpenThread(THREAD_ALL_ACCESS, FALSE, t32.th32ThreadID);
 				TempContext.ContextFlags = CONTEXT_DEBUG_REGISTERS;
-				if (localid == t32.th32ThreadID || GetCurrentProcessId()!=t32.th32OwnerProcessID) continue;
+				if (localid == t32.th32ThreadID || GetCurrentProcessId() != t32.th32OwnerProcessID) continue;
 				temp &= GetThreadContext(th, &TempContext);
 				TempContext.Dr0 = global_context.Dr0;
 				TempContext.Dr1 = global_context.Dr1;
@@ -252,7 +248,6 @@ namespace DllHook
 
 	RegisterHook::RegisterHook()
 	{
-
 	}
 	RegisterHook::~RegisterHook()
 	{
@@ -265,7 +260,4 @@ namespace DllHook
 	{
 		return 0;
 	}
-
-
-
 }

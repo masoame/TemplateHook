@@ -27,7 +27,6 @@ namespace DllHook
 			operator AUTOWORD& () { return this->dr6; }
 			void operator=(const AUTOWORD& dr6) { this->dr6 = dr6; }
 			bool GetBits(type local) const;
-
 		}Dr6;
 		struct __Dr7
 		{
@@ -42,7 +41,6 @@ namespace DllHook
 			operator AUTOWORD& () { return this->dr7; }
 			void operator=(const AUTOWORD& dr7) { this->dr7 = dr7; }
 			void SetBits(const type local, unsigned char bits);
-
 		}Dr7;
 		void operator=(const CONTEXT& context);
 	};

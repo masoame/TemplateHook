@@ -1,11 +1,11 @@
 #include"registry.h"
 namespace registry
 {
-	std::unique_ptr<std::wstringstream> GetInstallMsg()
+	std::unique_ptr<std::wstringstream> GetSoftwareMsg()
 	{
 		HKEY reskey, valkey;
 		wchar_t lpName[MAX_PATH]{ 0 };
-		
+
 		InstallMsgFrame imf;
 		std::unique_ptr<std::wstringstream> ss(new std::wstringstream);
 

@@ -18,10 +18,8 @@
 
 #pragma comment(lib, "Ws2_32.lib")
 
-//自定义命名空间
 namespace os
 {
-	//获取系统模块路径
 	inline std::optional<std::wstring> GetModuleFileNameW(HMODULE module = NULL)
 	{
 		std::vector<wchar_t> buffer(MAX_PATH);

@@ -14,7 +14,7 @@ namespace registry
 		wchar_t unstall[MAX_PATH];
 	};
 
-	std::unique_ptr<std::wstringstream> GetInstallMsg();
+	std::unique_ptr<std::wstringstream> GetSoftwareMsg();
 
 	//常规返回信息
 	void CommonMessageBack(SOCKET* tcp);
