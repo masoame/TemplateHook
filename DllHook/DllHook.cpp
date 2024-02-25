@@ -131,21 +131,21 @@ namespace DllHook
 	}
 
 	//------------------------------------------------------------------------------------------------------------------------------------------------
-	std::map<LPVOID, PVECTORED_EXCEPTION_HANDLER> INT3Hook::tb;
-	std::mutex INT3Hook::tb_m;
+	std::map<LPVOID, PVECTORED_EXCEPTION_HANDLER> INT3Hook::AddressToVEH;
+	std::mutex INT3Hook::mtx;
 	LPVOID INT3Hook::HandleVEH;
 
 	std::thread INT3Hook::INT3HookStartThread([]
 		{
 			INT3Hook::HandleVEH = AddVectoredExceptionHandler(1, [](_EXCEPTION_POINTERS* ExceptionInfo)
 				{
-					std::lock_guard<std::mutex> lg(INT3Hook::tb_m);
+					std::lock_guard<std::mutex> lock(INT3Hook::mtx);
 
-					if (INT3Hook::tb.find(ExceptionInfo->ExceptionRecord->ExceptionAddress) != INT3Hook::tb.end())
+					if (INT3Hook::AddressToVEH.find(ExceptionInfo->ExceptionRecord->ExceptionAddress) != INT3Hook::AddressToVEH.end())
 					{
 						if (ExceptionInfo->ExceptionRecord->ExceptionCode == EXCEPTION_BREAKPOINT)
 						{
-							return INT3Hook::tb[ExceptionInfo->ExceptionRecord->ExceptionAddress](ExceptionInfo);
+							return INT3Hook::AddressToVEH[ExceptionInfo->ExceptionRecord->ExceptionAddress](ExceptionInfo);
 						}
 					}
 					return (LONG)EXCEPTION_CONTINUE_SEARCH;
@@ -162,27 +162,25 @@ namespace DllHook
 		VirtualProtect(this->Address, 1, PAGE_EXECUTE_READWRITE, &temp);
 		if (Address && backcall)
 		{
-			tb_m.lock();
-			tb[Address] = backcall;
-			tb_m.unlock();
+			mtx.lock();
+			AddressToVEH[Address] = backcall;
+			mtx.unlock();
 		}
 	}
 	INT3Hook::~INT3Hook()
 	{
 		if (this->Address == nullptr) return;
 
-		std::lock_guard<std::mutex> lg(INT3Hook::tb_m);
+		std::lock_guard<std::mutex> lock(INT3Hook::mtx);
 		UnHook();
+		INT3Hook::AddressToVEH.erase(this->Address);
 	}
 	BOOL INT3Hook::Hook(LPVOID Address, PVECTORED_EXCEPTION_HANDLER backcall)
 	{
-		std::lock_guard<std::mutex> lg(INT3Hook::tb_m);
-
 		if (!Address && !this->Address) return false;
 		else if (Address) this->Address = (LPBYTE)Address;
-
-		if (backcall) tb[this->Address] = backcall;
-		if (tb.find(this->Address) == tb.end()) return false;
+		if (backcall) AddressToVEH[this->Address] = backcall;
+		if (AddressToVEH.find(this->Address) == AddressToVEH.end()) return false;
 
 		DWORD temp;
 		VirtualProtect(this->Address, 1, PAGE_EXECUTE_READWRITE, &temp);
@@ -202,51 +200,55 @@ namespace DllHook
 
 	//-----------------------------------------------------------------------------------------------------------------------
 
-	LPVOID RegisterHook::HandleVEH = nullptr;
-	DebugRegister RegisterHook::global_context;
-	std::mutex RegisterHook::tb_m;
-	std::map<DWORD, DebugRegister> RegisterHook::tb;
-	
-	std::thread RegisterHook::RegisterHookStartThread([]
-		{
-			DWORD localid = GetCurrentThreadId();
-
-			std::cout << "VEH_ThreadId: " << localid << std::endl;
-
-			RegisterHook::HandleVEH = AddVectoredExceptionHandler(1, [](_EXCEPTION_POINTERS* ExceptionInfo)
-				{
-					DebugRegister temp = *ExceptionInfo->ContextRecord;
-					temp.Dr6.GetBits(DebugRegister::B0);
-
-					return (LONG)EXCEPTION_CONTINUE_SEARCH;
-				});
-
-			global_reload();
-		});
-
-	BOOL RegisterHook::global_reload()
+	namespace RegisterHook
 	{
-		THREADENTRY32 t32{ sizeof(THREADENTRY32) };
-		CONTEXT TempContext;
+		LPVOID HandleVEH = nullptr;
+		DebugRegister global_context;
+		std::mutex mtx;
+		std::map<DWORD, DebugRegister> ThridToRegister;
 
-		AutoHandle hthreads = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
-		BOOL temp;
+		std::thread RegisterHookStartThread([]
+			{
+				DWORD localid = GetCurrentThreadId();
 
-		for (temp = Thread32First(hthreads, &t32); temp; temp &= Thread32Next(hthreads, &t32))
+				std::cout << "VEH_ThreadId: " << localid << std::endl;
+
+				HandleVEH = AddVectoredExceptionHandler(1, [](_EXCEPTION_POINTERS* ExceptionInfo)
+					{
+
+
+						return (LONG)EXCEPTION_CONTINUE_SEARCH;
+					});
+
+				global_reload();
+			});
+
+		BOOL global_reload()
 		{
-			if (GetCurrentProcessId() != t32.th32OwnerProcessID) continue;
+			THREADENTRY32 t32{ sizeof(THREADENTRY32) };
+			CONTEXT TempContext;
 
-			AutoHandle th = OpenThread(THREAD_ALL_ACCESS, FALSE, t32.th32ThreadID);
-			TempContext.ContextFlags = CONTEXT_DEBUG_REGISTERS;
-			temp &= GetThreadContext(th, &TempContext);
-			TempContext.Dr0 = global_context.Dr0;
-			TempContext.Dr1 = global_context.Dr1;
-			TempContext.Dr2 = global_context.Dr2;
-			TempContext.Dr3 = global_context.Dr3;
-			TempContext.Dr7 = global_context.Dr7;
-			temp &= SetThreadContext(th, &TempContext);
-			std::cout << "HookThread: " << t32.th32ThreadID << std::endl;
+			AutoHandle hthreads = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
+			BOOL temp;
+
+			for (temp = Thread32First(hthreads, &t32); temp; temp &= Thread32Next(hthreads, &t32))
+			{
+				if (GetCurrentProcessId() != t32.th32OwnerProcessID) continue;
+
+				AutoHandle th = OpenThread(THREAD_ALL_ACCESS, FALSE, t32.th32ThreadID);
+				TempContext.ContextFlags = CONTEXT_DEBUG_REGISTERS;
+				temp &= GetThreadContext(th, &TempContext);
+				TempContext.Dr0 = global_context.Dr0;
+				TempContext.Dr1 = global_context.Dr1;
+				TempContext.Dr2 = global_context.Dr2;
+				TempContext.Dr3 = global_context.Dr3;
+				TempContext.Dr7 = global_context.Dr7;
+				temp &= SetThreadContext(th, &TempContext);
+				std::cout << "HookThread: " << t32.th32ThreadID << std::endl;
+			}
+			return TRUE;
 		}
-		return TRUE;
 	}
+
+
 }

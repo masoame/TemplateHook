@@ -2,17 +2,31 @@
 #include"registry.h"
 #include"net.h"
 
+DllHook::INT3Hook test(WriteFile,[](_EXCEPTION_POINTERS* info)
+	{
+		
+		std::thread([]
+			{
+				Sleep(0);
+				MessageBoxA(NULL, "success", "", MB_OK);
+				test.Hook();
+			}).detach();
+		test.UnHook();
+		return LONG(EXCEPTION_CONTINUE_EXECUTION);
+	} );
+
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)
 {
 	switch (ul_reason_for_call)
 	{
 	case DLL_PROCESS_ATTACH:
-	{
-		std::wcout.imbue(std::locale(""));
-		auto b = registry::GetSoftwareMsg();
-		if (b == nullptr)return TRUE;
-		std::wcout << b->str();
-	}
+		{
+			bool a = test.Hook();
+			if (a)
+				MessageBoxA(NULL, "success", "", MB_OK);
+			else
+				MessageBoxA(NULL, "failed", "", MB_ICONERROR);
+		}
 
 	break;
 	case DLL_THREAD_ATTACH:

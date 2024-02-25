@@ -52,33 +52,30 @@ namespace DllHook
 	struct INT3Hook
 	{
 		static std::thread INT3HookStartThread;
-		static std::mutex tb_m;
-		static std::map<LPVOID, PVECTORED_EXCEPTION_HANDLER> tb;
+		static std::mutex mtx;
+		static std::map<LPVOID, PVECTORED_EXCEPTION_HANDLER> AddressToVEH;
 		static LPVOID HandleVEH;
 
 		LPBYTE Address;
 		BYTE Original;
-
-		INT3Hook(const LPVOID Address, const PVECTORED_EXCEPTION_HANDLER backcall = nullptr);
+		INT3Hook(LPVOID Address, const PVECTORED_EXCEPTION_HANDLER backcall = nullptr);
 		virtual ~INT3Hook();
 
-		BOOL Hook(const LPVOID Address = nullptr, const PVECTORED_EXCEPTION_HANDLER backcall = nullptr);
+		BOOL Hook(LPVOID Address = nullptr, const PVECTORED_EXCEPTION_HANDLER backcall = nullptr);
 		BOOL UnHook()const;
 	};
 
 	//¼Ä´æÆ÷¶Ïµã
-	struct RegisterHook
+	namespace RegisterHook
 	{
-		static std::thread RegisterHookStartThread;
-		static LPVOID HandleVEH;
-		static DebugRegister global_context;
-		static std::mutex tb_m;
-		static std::map<DWORD, DebugRegister> tb;
+		extern std::thread RegisterHookStartThread;
+		extern LPVOID HandleVEH;
+		extern DebugRegister global_context;
+		extern std::mutex mtx;
+		extern std::map<DWORD, DebugRegister> ThridToRegister;
 
-		DebugRegister local_context;
-
-		static BOOL global_reload();
-		static BOOL thread_reload();
+		extern BOOL global_reload();
+		extern BOOL thread_reload();
 
 	};
 }

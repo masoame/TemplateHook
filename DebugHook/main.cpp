@@ -3,7 +3,13 @@
 
 int main()
 {
-    LoadLibraryA("DllHook.dll");
+    auto a = DebugHook::SearchProcess(L"notepad++.exe");
+    if (a != nullptr)
+    {
+        DebugHook::InjectDll(a->th32ProcessID, L"DllHook.dll");
+        std::cout << "Inject success !!" << std::endl;
+    }
+
 
 
 

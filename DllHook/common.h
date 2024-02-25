@@ -51,9 +51,11 @@ private:
 	std::unique_ptr<void, HandleCleaner> h;
 };
 template<class KEY,class T>
-class ThreadSafeMap
+class ThreadSafeMap : public std::map<KEY, T>
 {
-	std::map<KEY, T> core_map;
+	ThreadSafeMap(auto arg...) :std::map<KEY, T>(arg...) {}
 	std::mutex mtx;
+	
+
 
 };
