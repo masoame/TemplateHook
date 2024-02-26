@@ -108,16 +108,16 @@ namespace DllHook
 	}
 
 	//------------------------------------------------------------------------------------------------------------------------
-	inline bool DebugRegister::__Dr6::GetBits(type local) const
+	inline bool DebugRegister::GetDr6Bits(type local) const
 	{
-		return static_cast<bool>(dr6 & local);
+		return static_cast<bool>(Dr6 & local);
 	}
 
-	void DebugRegister::__Dr7::SetBits(const type local, unsigned char bits)
+	void DebugRegister::SetDr7Bits(const type local, unsigned char bits)
 	{
 		bits &= 0b11;
-		dr7 &= ~(0b11 << local);
-		dr7 |= (bits << local);
+		Dr7 &= ~(0b11 << local);
+		Dr7 |= (bits << local);
 	}
 
 	DebugRegister::DebugRegister(const CONTEXT& context)

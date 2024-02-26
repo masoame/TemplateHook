@@ -26,23 +26,26 @@ namespace DllHook
 			//--------------------------------------------------------------------------------------------
 			B0 = 1, B1 = 1 << 1, B2 = 1 << 2, B3 = 1 << 3, BD = 1 << 13, BS = 1 << 14, BT = 1 << 15
 		};
-		struct __Dr6
+		struct
 		{
 			AUTOWORD dr6;
+			operator AUTOWORD () const { return this->dr6; }
 			operator AUTOWORD& () { return this->dr6; }
 			void operator=(const AUTOWORD& dr6) { this->dr6 = dr6; }
-			bool GetBits(type local) const;
 		}Dr6;
-		struct __Dr7
+		struct
 		{
 			AUTOWORD dr7;
 			operator AUTOWORD& () { return this->dr7; }
 			void operator=(const AUTOWORD& dr7) { this->dr7 = dr7; }
-			void SetBits(const type local, unsigned char bits);
+
 		}Dr7;
 
 		DebugRegister() {}
 		DebugRegister(const CONTEXT& context);
+
+		bool GetDr6Bits(type local) const;
+		void SetDr7Bits(const type local, unsigned char bits);
 	};
 
 	std::unique_ptr<std::stringstream> GetImportDirectory(const HMODULE hModule);
