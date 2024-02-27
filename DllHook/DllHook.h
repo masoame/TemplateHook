@@ -36,9 +36,13 @@ namespace DllHook
 		struct
 		{
 			AUTOWORD dr7;
+			operator AUTOWORD () const { return this->dr7; }
 			operator AUTOWORD& () { return this->dr7; }
 			void operator=(const AUTOWORD& dr7) { this->dr7 = dr7; }
 		}Dr7;
+
+		operator CONTEXT() const;
+		PVECTORED_EXCEPTION_HANDLER fc[5];
 
 		DebugRegister() {}
 		DebugRegister(const CONTEXT& context);
@@ -75,7 +79,7 @@ namespace DllHook
 		extern std::mutex mtx;
 		extern std::map<DWORD, DebugRegister> ThrIdToRegister;
 
-		extern BOOL global_reload();
-		extern BOOL thread_reload();
+		extern BOOL global_load();
+		extern BOOL thread_load(DWORD threadId);
 	};
 }

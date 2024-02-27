@@ -1,31 +1,25 @@
 ﻿#include"DllHook.h"
 #include"registry.h"
-
-DllHook::INT3Hook test(WriteFile, [](_EXCEPTION_POINTERS* info)
-	{
-		std::thread([]
-			{
-				Sleep(0);
-				MessageBoxA(NULL, "success", "", MB_OK);
-				test.Hook();
-			}).detach();
-			test.UnHook();
-			return LONG(EXCEPTION_CONTINUE_EXECUTION);
-	});
-
+using namespace DllHook;
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)
 {
 	switch (ul_reason_for_call)
 	{
 	case DLL_PROCESS_ATTACH:
-	{
-		auto a = DllHook::GetExportDirectory(GetModuleHandleA("kernel32.dll"));
-		std::cout << a->str() << std::endl;
 
-		std::cout << GetProcAddress(GetModuleHandleA("kernel32.dll"), "WriteFile");
-	}
+		RegisterHook::global_context.SetDr7Bits(DebugRegister::LG0, 0b01);
+		RegisterHook::global_context.Dr0 = (AUTOWORD)MessageBoxA;
+		RegisterHook::global_context.fc[0] = [](_EXCEPTION_POINTERS* info)
+			{
+				std::thread([] {
+					Sleep(0);
+					});
+				RegisterHook::global_context.SetDr7Bits(DebugRegister::LG0, 0b00);
 
-	break;
+				return (LONG)EXCEPTION_CONTINUE_EXECUTION;
+			};
+
+		break;
 	case DLL_THREAD_ATTACH:
 
 		break;
