@@ -38,7 +38,6 @@ namespace DllHook
 			AUTOWORD dr7;
 			operator AUTOWORD& () { return this->dr7; }
 			void operator=(const AUTOWORD& dr7) { this->dr7 = dr7; }
-
 		}Dr7;
 
 		DebugRegister() {}
@@ -47,7 +46,6 @@ namespace DllHook
 		bool GetDr6Bits(type local) const;
 		void SetDr7Bits(const type local, unsigned char bits);
 	};
-
 	std::unique_ptr<std::stringstream> GetImportDirectory(const HMODULE hModule);
 	std::unique_ptr<std::stringstream> GetExportDirectory(const HMODULE hModule);
 
@@ -75,10 +73,9 @@ namespace DllHook
 		extern LPVOID HandleVEH;
 		extern DebugRegister global_context;
 		extern std::mutex mtx;
-		extern std::map<DWORD, DebugRegister> ThridToRegister;
+		extern std::map<DWORD, DebugRegister> ThrIdToRegister;
 
 		extern BOOL global_reload();
 		extern BOOL thread_reload();
-
 	};
 }

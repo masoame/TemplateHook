@@ -104,7 +104,9 @@ namespace DllHook
 		std::unique_ptr<std::stringstream> ExpDirMsg(new std::stringstream);
 
 		for (int i = 0; i != ExpDir->NumberOfNames; i++)
-			*ExpDirMsg << "Address: " << (LPVOID)FunctionDir[OrdinalDir[i]] << " " << (LPCSTR)((DWORD64)hModule + NameDir[i]) << std::endl;
+			*ExpDirMsg << "Address: " << (LPVOID)(FunctionDir[OrdinalDir[i]] + (DWORD64)hModule) << " " << (LPCSTR)((DWORD64)hModule + NameDir[i]) << std::endl;
+
+		return ExpDirMsg;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------------
@@ -205,7 +207,7 @@ namespace DllHook
 		LPVOID HandleVEH = nullptr;
 		DebugRegister global_context;
 		std::mutex mtx;
-		std::map<DWORD, DebugRegister> ThridToRegister;
+		std::map<DWORD, DebugRegister> ThrIdToRegister;
 
 		std::thread RegisterHookStartThread([]
 			{
@@ -215,8 +217,6 @@ namespace DllHook
 
 				HandleVEH = AddVectoredExceptionHandler(1, [](_EXCEPTION_POINTERS* ExceptionInfo)
 					{
-
-
 						return (LONG)EXCEPTION_CONTINUE_SEARCH;
 					});
 
@@ -249,6 +249,4 @@ namespace DllHook
 			return TRUE;
 		}
 	}
-
-
 }
