@@ -152,6 +152,7 @@ namespace DllHook
 
 	std::thread INT3Hook::INT3HookStartThread([]
 		{
+			std::cout << "INT3HookStartThread start!!! " << std::endl;
 			INT3Hook::HandleVEH = AddVectoredExceptionHandler(1, [](_EXCEPTION_POINTERS* ExceptionInfo)
 				{
 					std::lock_guard<std::mutex> lock(INT3Hook::mtx);

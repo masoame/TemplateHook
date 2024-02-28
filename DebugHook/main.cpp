@@ -3,13 +3,14 @@
 
 int main()
 {
-	//auto temp = DebugHook::SearchProcess(L"ASTLIBRA.exe");
-	//if (temp)
-	//	DebugHook::InjectDll(temp->th32ProcessID, L"DllHook.dll");
 	LoadLibraryA("DllHook.dll");
 	while (true)
 	{
-		MessageBoxW(NULL, L"", L"", MB_OK);
+		std::thread([]
+			{
+				std::cout << "创建线程" << GetCurrentThreadId() << std::endl;
+			}).detach();
+		system("pause");
 	}
-	system("pause");
+	
 }

@@ -13,7 +13,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
 			{
 				std::thread([thrid = GetCurrentThreadId()] {
 					Sleep(0);
-					std::cout << "触发一次" << std::endl;
+					std::cout << GetCurrentThreadId() << "触发" << std::endl;
 					RegisterHook::AddThreadDebug(thrid);
 					}).detach();
 				info->ContextRecord->Dr7 = 0;
@@ -22,10 +22,9 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
 
 		break;
 	case DLL_THREAD_ATTACH:
-	{
-		RegisterHook::AddThreadDebug(GetCurrentThreadId());
-		
-	}
+		if (RegisterHook::AddThreadDebug(GetCurrentThreadId()))
+			std::cout << GetCurrentThreadId() << "线程打入成功" << std::endl;
+
 		break;
 	case DLL_THREAD_DETACH:
 
