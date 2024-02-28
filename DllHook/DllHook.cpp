@@ -124,7 +124,7 @@ namespace DllHook
 
 	DebugRegister::operator CONTEXT() const
 	{
-		CONTEXT temp = { 0 };
+		CONTEXT temp;
 		temp.ContextFlags = CONTEXT_DEBUG_REGISTERS;
 		temp.Dr0 = this->Dr0;
 		temp.Dr1 = this->Dr1;
@@ -255,10 +255,10 @@ namespace DllHook
 						}
 						return (LONG)EXCEPTION_CONTINUE_SEARCH;
 					});
-				global_load();
+				AddAllThreadDebug();
 			});
 
-		BOOL global_load()
+		BOOL AddAllThreadDebug()
 		{
 			THREADENTRY32 t32{ sizeof(THREADENTRY32) };
 			CONTEXT tempContext = global_context;
@@ -272,19 +272,31 @@ namespace DllHook
 			{
 				if (processId != t32.th32OwnerProcessID) continue;
 				AutoHandle th = OpenThread(THREAD_ALL_ACCESS, FALSE, t32.th32ThreadID);
-				if (SetThreadContext(th, &tempContext))continue;
+				if (!SetThreadContext(th, &tempContext))continue;
 				ThrIdToRegister[t32.th32ThreadID] = global_context;
 				std::cout << "HookThread: " << t32.th32ThreadID << std::endl;
 			}
 			return TRUE;
 		}
-		BOOL thread_load(DWORD threadId)
+
+		BOOL AddThreadDebug(DWORD threadId)
 		{
+			CONTEXT tempContext;
 			AutoHandle th = ::OpenThread(THREAD_ALL_ACCESS, FALSE, threadId);
 			if (!th)return FALSE;
 			std::unique_lock lock(mtx, std::try_to_lock);
-			CONTEXT tempContext = ThrIdToRegister[threadId];
-			return SetThreadContext(th, &tempContext);
+
+			if (ThrIdToRegister.find(threadId) == ThrIdToRegister.end())
+			{
+				ThrIdToRegister[threadId] = global_context;
+				tempContext = global_context;
+				return ::SetThreadContext(th, &tempContext);
+			}
+			else
+			{
+				tempContext = ThrIdToRegister[threadId];
+				return ::SetThreadContext(th, &tempContext);
+			}
 		}
 	}
 }

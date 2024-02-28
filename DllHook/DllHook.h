@@ -44,7 +44,7 @@ namespace DllHook
 		operator CONTEXT() const;
 		PVECTORED_EXCEPTION_HANDLER fc[5];
 
-		DebugRegister() {}
+		DebugRegister() :Dr0(0), Dr1(0), Dr2(0), Dr3(0), Dr6{ 0 }, Dr7{ 0 } {};
 		DebugRegister(const CONTEXT& context);
 
 		bool GetDr6Bits(type local) const;
@@ -79,7 +79,7 @@ namespace DllHook
 		extern std::mutex mtx;
 		extern std::map<DWORD, DebugRegister> ThrIdToRegister;
 
-		extern BOOL global_load();
-		extern BOOL thread_load(DWORD threadId);
+		extern BOOL AddAllThreadDebug();
+		extern BOOL AddThreadDebug(DWORD threadId);
 	};
 }
