@@ -177,9 +177,8 @@ namespace DllHook
 		VirtualProtect(this->Address, 1, PAGE_EXECUTE_READWRITE, &temp);
 		if (Address && backcall)
 		{
-			mtx.lock();
+			std::lock_guard lock(mtx);
 			AddressToVEH[Address] = backcall;
-			mtx.unlock();
 		}
 	}
 	INT3Hook::~INT3Hook()
@@ -194,6 +193,9 @@ namespace DllHook
 	{
 		if (!Address && !this->Address) return false;
 		else if (Address) this->Address = (LPBYTE)Address;
+
+		std::unique_lock lock(mtx, std::try_to_lock);
+
 		if (backcall) AddressToVEH[this->Address] = backcall;
 		if (AddressToVEH.find(this->Address) == AddressToVEH.end()) return false;
 
