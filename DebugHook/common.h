@@ -2,6 +2,7 @@
 #include"defs.h"
 #include<iostream>
 #include<filesystem>
+#include<fstream>
 #include<thread>
 #include<cassert>
 #include<regex>

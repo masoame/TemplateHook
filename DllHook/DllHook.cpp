@@ -135,16 +135,6 @@ namespace DllHook
 		return temp;
 	}
 
-	DebugRegister::DebugRegister(const CONTEXT& context)
-	{
-		this->Dr0 = context.Dr0;
-		this->Dr1 = context.Dr1;
-		this->Dr2 = context.Dr2;
-		this->Dr3 = context.Dr3;
-		this->Dr6 = context.Dr6;
-		this->Dr7 = context.Dr7;
-	}
-
 	//------------------------------------------------------------------------------------------------------------------------------------------------
 	std::map<LPVOID, PVECTORED_EXCEPTION_HANDLER> INT3Hook::AddressToVEH;
 	std::mutex INT3Hook::mtx;
@@ -229,6 +219,18 @@ namespace DllHook
 			{
 				std::cout << "RegisterHookStartThread start!!! " << std::endl;
 
+				THREADENTRY32 t32{ sizeof(THREADENTRY32) };
+				DWORD processId = GetCurrentProcessId();
+				AutoHandle hthreads = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
+				std::unique_lock lock(mtx, std::try_to_lock);
+
+				for (BOOL temp = Thread32First(hthreads, &t32); temp; temp = Thread32Next(hthreads, &t32))
+				{
+					if (processId != t32.th32OwnerProcessID) continue;
+					ThrIdToRegister.insert({ t32.th32ThreadID,{} });
+				}
+				Flush_GlobalDebug();
+
 				HandleVEH = AddVectoredExceptionHandler(1, [](_EXCEPTION_POINTERS* ExceptionInfo)
 					{
 						AUTOWORD local = ExceptionInfo->ContextRecord->Dr6 & (DebugRegister::B0 | DebugRegister::B1 | DebugRegister::B2 | DebugRegister::B3 | DebugRegister::BD);
@@ -256,31 +258,21 @@ namespace DllHook
 						}
 						return (LONG)EXCEPTION_CONTINUE_SEARCH;
 					});
-				AddAllThreadDebug();
 			});
 
-		BOOL AddAllThreadDebug()
+		void Flush_GlobalDebug() noexcept
 		{
-			THREADENTRY32 t32{ sizeof(THREADENTRY32) };
 			CONTEXT tempContext = global_context;
-			DWORD processId = GetCurrentProcessId();
-			AutoHandle hthreads = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
-			if (!hthreads) return FALSE;
-
-			std::unique_lock lock(mtx,std::try_to_lock);
-
-			for (BOOL temp = Thread32First(hthreads, &t32); temp; temp = Thread32Next(hthreads, &t32))
+			std::unique_lock lock(mtx, std::try_to_lock);
+			for (auto&[key,val] : ThrIdToRegister)
 			{
-				if (processId != t32.th32OwnerProcessID) continue;
-				AutoHandle th = OpenThread(THREAD_ALL_ACCESS, FALSE, t32.th32ThreadID);
+				AutoHandle th = OpenThread(THREAD_ALL_ACCESS, FALSE, key);
 				if (!SetThreadContext(th, &tempContext))continue;
-				ThrIdToRegister[t32.th32ThreadID] = global_context;
-				std::cout << "HookThread: " << t32.th32ThreadID << std::endl;
+				val = global_context;
 			}
-			return TRUE;
 		}
 
-		BOOL AddThreadDebug(DWORD threadId)
+		BOOL Insert_ThreadDebug(DWORD threadId)
 		{
 			CONTEXT tempContext;
 			AutoHandle th = ::OpenThread(THREAD_ALL_ACCESS, FALSE, threadId);
