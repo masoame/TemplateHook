@@ -47,6 +47,17 @@ DllHook::INT3Hook killzb((LPVOID)0x00545E04, [](_EXCEPTION_POINTERS* info)
 			killzb.UnHook();
 			return (LONG)EXCEPTION_CONTINUE_EXECUTION;
 	});
+DllHook::INT3Hook killzb1((LPVOID)0x00545B1A, [](_EXCEPTION_POINTERS* info)
+	{
+		std::thread([]
+			{
+				Sleep(0);
+				killzb1.Hook();
+			}).detach();
+			info->ContextRecord->Ecx = 0;
+			killzb1.UnHook();
+			return (LONG)EXCEPTION_CONTINUE_EXECUTION;
+	});
 #else
 
 
