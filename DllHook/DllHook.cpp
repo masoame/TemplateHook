@@ -175,8 +175,8 @@ namespace DllHook
 	INT3Hook::~INT3Hook()
 	{
 		if (this->Address == nullptr) return;
-
-		std::lock_guard<std::mutex> lock(INT3Hook::mtx);
+		
+		std::unique_lock lock(INT3Hook::mtx, std::try_to_lock);
 		UnHook();
 		INT3Hook::AddressToVEH.erase(this->Address);
 	}

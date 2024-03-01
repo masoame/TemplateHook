@@ -1,18 +1,15 @@
 ﻿#include"DllHook.h"
-
 #include"test.h"
-
-
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)
 {
 	switch (ul_reason_for_call)
 	{
 	case DLL_PROCESS_ATTACH:
-		headmomey.Hook();
-		addsun.Hook();
-		plantmomey.Hook();
-		killzb.Hook();
+		//headmomey.Hook();
+		//addsun.Hook();
+		//plantmomey.Hook();
+		//killzb.Hook();
 		break;
 	case DLL_THREAD_ATTACH:
 		if (DllHook::RegisterHook::Insert_ThreadDebug(GetCurrentThreadId()))

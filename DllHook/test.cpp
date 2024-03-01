@@ -1,5 +1,6 @@
 #include"test.h"
 
+#ifndef _WIN64
 DllHook::INT3Hook headmomey((LPVOID)0x0043478c, [](_EXCEPTION_POINTERS* info)
 	{
 		std::thread([]
@@ -46,3 +47,8 @@ DllHook::INT3Hook killzb((LPVOID)0x00545E04, [](_EXCEPTION_POINTERS* info)
 			killzb.UnHook();
 			return (LONG)EXCEPTION_CONTINUE_EXECUTION;
 	});
+#else
+
+
+
+#endif
