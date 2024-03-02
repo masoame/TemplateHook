@@ -58,8 +58,16 @@ DllHook::INT3Hook killzb1((LPVOID)0x00545B1A, [](_EXCEPTION_POINTERS* info)
 			killzb1.UnHook();
 			return (LONG)EXCEPTION_CONTINUE_EXECUTION;
 	});
+
+
+
+
 #else
 
+void test()
+{
 
+
+}
 
 #endif

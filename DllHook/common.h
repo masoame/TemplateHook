@@ -49,9 +49,29 @@ private:
 	struct HandleCleaner { void operator()(void* h) { if (h != INVALID_HANDLE_VALUE) HandleCloser()(PermissivePointer{ h }); } };
 	std::unique_ptr<void, HandleCleaner> h;
 };
+
+
 template<class KEY, class T>
 class ThreadSafeMap : public std::map<KEY, T>
 {
-	ThreadSafeMap(auto arg...) :std::map<KEY, T>(arg...) {}
 	std::mutex mtx;
+public:
+
+	auto& operator[](const auto& _Keyval) {
+		return __super::operator[](_Keyval);
+	}
+	auto& operator[](auto&& _Keyval) { // find element matching _Keyval or insert value-initialized value
+		return __super::operator[](_Keyval);
+	}
+
+	ThreadSafeMap(std::initializer_list<std::pair<const KEY,T>> _Ilist) :std::map<KEY, T>(_Ilist){}
+
+	auto erase(const KEY& _Keyval) noexcept{
+		std::unique_lock lock(mtx);
+		return std::map<KEY, T>::erase(_Keyval);
+	}
+
+
+
 };
+
