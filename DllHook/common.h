@@ -9,6 +9,7 @@
 #include<regex>
 #include<mutex>
 #include<sstream>
+#include<optional>
 
 #include<WinSock2.h>
 #include<windows.h>

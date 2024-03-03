@@ -6,6 +6,7 @@
 #include<thread>
 #include<cassert>
 #include<regex>
+#include<optional>
 
 #include<windows.h>
 #include<tlhelp32.h>
