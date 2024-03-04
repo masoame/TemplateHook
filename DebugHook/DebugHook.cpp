@@ -124,9 +124,12 @@ namespace DebugHook
 		return {};
 	}
 
-	BOOL ShowExportTable(HANDLE ProcessHandle, HMODULE BaseAddress)
+	std::unique_ptr<std::stringstream> ShowExportTable(HANDLE ProcessHandle, HMODULE BaseAddress)
 	{
 		if (!ProcessHandle || !BaseAddress) return FALSE;
+
+		std::unique_ptr<std::stringstream> ss{ new std::stringstream };
+
 		char ProcName[256];
 		IMAGE_DOS_HEADER DosHeader;
 		IMAGE_NT_HEADERS NtHeader;
@@ -157,13 +160,14 @@ namespace DebugHook
 			if (!ReadProcessMemory(ProcessHandle, (LPVOID)((SIZE_T)(BaseAddress)+ExpDir.AddressOfNameOrdinals + sizeof(int16_t) * i), &Ordinals, sizeof(int16_t), 0))return FALSE;
 			//读取表的地址
 			if (!ReadProcessMemory(ProcessHandle, (LPVOID)((SIZE_T)(BaseAddress)+ExpDir.AddressOfFunctions + Ordinals * sizeof(int32_t)), &Prc_RVA, sizeof(int32_t), 0))return FALSE;
-			std::cout << "地址:" << (void*)((long long)BaseAddress + Prc_RVA) << "\t序号:" << Ordinals << "\t函数名:" << ProcName << std::endl;
+			*ss << "地址:" << (void*)((long long)BaseAddress + Prc_RVA) << "\t序号:" << Ordinals << "\t函数名:" << ProcName << std::endl;
 		}
-		return FALSE;
+		return ss;
 	}
 
-	BOOL ShowImportTable(HANDLE ProcessHandle, HMODULE BaseAddress)
+	std::unique_ptr<std::stringstream> ShowImportTable(HANDLE ProcessHandle, HMODULE BaseAddress)
 	{
+		std::unique_ptr<std::stringstream> ss{ new std::stringstream };
 		if (!ProcessHandle || !BaseAddress) return FALSE;
 		char Name[256];
 		IMAGE_DOS_HEADER DosHeader;
@@ -177,36 +181,35 @@ namespace DebugHook
 		int16_t Ordinals = 0;
 
 		//读取DOS头
-		if (!ReadProcessMemory(ProcessHandle, BaseAddress, &DosHeader, sizeof(DosHeader), 0) && (DosHeader.e_magic != 0x5A4D)) return FALSE;
+		if (!ReadProcessMemory(ProcessHandle, BaseAddress, &DosHeader, sizeof(DosHeader), 0) && (DosHeader.e_magic != 0x5A4D)) return nullptr;
 		//读取NT头
-		if (!ReadProcessMemory(ProcessHandle, (LPVOID)((SIZE_T)(BaseAddress)+DosHeader.e_lfanew), &NtHeader, sizeof(NtHeader), 0))return FALSE;
+		if (!ReadProcessMemory(ProcessHandle, (LPVOID)((SIZE_T)(BaseAddress)+DosHeader.e_lfanew), &NtHeader, sizeof(NtHeader), 0))return nullptr;
 		if (NtHeader.Signature != 0x4550) return FALSE;
 
 		for (int i = 0; ReadProcessMemory(ProcessHandle, (LPVOID)((SIZE_T)(BaseAddress)+NtHeader.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress + sizeof(ImpDes) * i), &ImpDes, sizeof(ImpDes), 0); i++)
 		{
 			if (ImpDes.Characteristics == 0)break;
-			if (!ReadProcessMemory(ProcessHandle, (LPVOID)((SIZE_T)(BaseAddress)+ImpDes.Name), &Name, sizeof(Name), 0))return -1;
-			std::cout << Name << std::endl;
+			if (!ReadProcessMemory(ProcessHandle, (LPVOID)((SIZE_T)(BaseAddress)+ImpDes.Name), &Name, sizeof(Name), 0))return nullptr;
+			*ss << Name << std::endl;
 
 			for (int j = 0; ReadProcessMemory(ProcessHandle, (LPVOID)((SIZE_T)(BaseAddress)+ImpDes.OriginalFirstThunk + sizeof(_INT) * j), &_INT, sizeof(_INT), 0); j++)
 			{
 				if (_INT.u1.Ordinal == 0)break;
 				if (!ReadProcessMemory(ProcessHandle, (LPVOID)((SIZE_T)(BaseAddress)+ImpDes.FirstThunk + sizeof(_IAT) * j), &_IAT, sizeof(_IAT), 0))break;
-				std::cout << "adress: " << (void*)_IAT.u1.AddressOfData;
+				*ss << "adress: " << (void*)_IAT.u1.AddressOfData;
 
 				if (IMAGE_SNAP_BY_ORDINAL(_INT.u1.Ordinal))
 				{
-					std::cout << "Ordinal: " << IMAGE_ORDINAL(_INT.u1.Ordinal) << std::endl;
+					*ss << "Ordinal: " << IMAGE_ORDINAL(_INT.u1.Ordinal) << std::endl;
 				}
 				else
 				{
 					if (!ReadProcessMemory(ProcessHandle, (LPVOID)((SIZE_T)(BaseAddress)+_INT.u1.AddressOfData), &Name, sizeof(Name), 0))break;
-					std::cout << " Ordinal: " << IMBN->Hint << " \tFunctionName: " << (const char*)&IMBN->Name << std::endl;
+					*ss << " Ordinal: " << IMBN->Hint << " \tFunctionName: " << (const char*)&IMBN->Name << std::endl;
 				}
 			}
 		}
-
-		return TRUE;
+		return ss;
 	}
 
 	//注入远程线程

@@ -20,9 +20,9 @@ namespace DebugHook
 	std::unique_ptr<std::vector<MODULEENTRY32>> ModuleInfo(DWORD th32ProcessID);
 
 	//导出表
-	BOOL ShowExportTable(HANDLE ProcessHandle, HMODULE BaseAddress);
+	std::unique_ptr<std::stringstream> ShowExportTable(HANDLE ProcessHandle, HMODULE BaseAddress);
 	//导入表
-	BOOL ShowImportTable(HANDLE ProcessHandle, HMODULE BaseAddress);
+	std::unique_ptr<std::stringstream> ShowImportTable(HANDLE ProcessHandle, HMODULE BaseAddress);
 
 	//获取函数地址
 	FARPROC GetProcAddressEx(HANDLE ProcessHandle, HMODULE BaseAddress, const char* fcName);

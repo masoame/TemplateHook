@@ -42,12 +42,13 @@ template<typename HandleCloser = Functor<CloseHandle>>
 class AutoHandle
 {
 public:
-	AutoHandle(HANDLE h) : h(h) {}
+	explicit AutoHandle(HANDLE h) : h(h) {}
+	operator=(HANDLE h) { this->h.reset(h); }
 	operator HANDLE() { return h.get(); }
 	PHANDLE operator&() { static_assert(sizeof(*this) == sizeof(HANDLE)); assert(h); return (PHANDLE)this; }
-	operator bool() { return h.get() != NULL && h.get() != INVALID_HANDLE_VALUE; }
+	operator bool() { return (h.get() != NULL) && (h.get() != INVALID_HANDLE_VALUE); }
 private:
-	struct HandleCleaner { void operator()(void* h) { if (h != INVALID_HANDLE_VALUE) HandleCloser()(PermissivePointer{ h }); } };
+	struct HandleCleaner { void operator()(void* h) { HandleCloser()(PermissivePointer{ h }; } };
 	std::unique_ptr<void, HandleCleaner> h;
 };
 
