@@ -6,7 +6,7 @@ namespace DebugHook
 	{
 		
 		std::ifstream file(filename, std::ios::in | std::ios::binary | std::ios::ate);
-		int filesize = file.tellg();
+		auto filesize = file.tellg();
 		file.seekg(std::ios::beg);
 		std::unique_ptr<char[]> buf{ new char[filesize] };
 		file.read(buf.get(), filesize);
