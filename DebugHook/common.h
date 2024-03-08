@@ -7,7 +7,7 @@
 #include<cassert>
 #include<regex>
 #include<optional>
-//#include<memory>
+#include<memory>
 
 #include<windows.h>
 #include<tlhelp32.h>

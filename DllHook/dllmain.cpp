@@ -6,6 +6,10 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
 	switch (ul_reason_for_call)
 	{
 	case DLL_PROCESS_ATTACH:
+	{
+		auto a = DllHook::GetImportDirectory(GetModuleHandleA("DebugHook.exe"));
+		std::cout << a->str();
+	}
 
 		break;
 	case DLL_THREAD_ATTACH:
