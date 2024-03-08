@@ -10,6 +10,7 @@
 #include<mutex>
 #include<sstream>
 #include<optional>
+#include<queue>
 
 #include<WinSock2.h>
 #include<windows.h>
@@ -42,6 +43,7 @@ template<typename HandleCloser = Functor<CloseHandle>>
 class AutoHandle
 {
 public:
+	AutoHandle() : h(nullptr) {}
 	AutoHandle(HANDLE h) : h(h) {}
 	void operator=(HANDLE h) { this->h.reset(h); }
 	operator HANDLE() { return h.get(); }

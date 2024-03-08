@@ -156,6 +156,7 @@ namespace DllHook
 					}
 					return (LONG)EXCEPTION_CONTINUE_SEARCH;
 				});
+			INT3HookStartThread.detach();
 		});
 
 	INT3Hook::INT3Hook(LPVOID Address, PVECTORED_EXCEPTION_HANDLER backcall)
@@ -258,6 +259,7 @@ namespace DllHook
 						}
 						return (LONG)EXCEPTION_CONTINUE_SEARCH;
 					});
+				RegisterHookStartThread.detach();
 			});
 
 		void Flush_GlobalDebug() noexcept

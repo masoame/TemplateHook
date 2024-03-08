@@ -24,9 +24,6 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
 		break;
 	case DLL_PROCESS_DETACH:
 
-		DllHook::INT3Hook::INT3HookStartThread.join();
-		DllHook::RegisterHook::RegisterHookStartThread.join();
-
 		break;
 	}
 	return TRUE;
