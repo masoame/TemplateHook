@@ -15,13 +15,12 @@ namespace Pipe
 			MsgPipeH = CreateNamedPipeW(MsgPipeName, PIPE_ACCESS_OUTBOUND, PIPE_TYPE_BYTE, 1, 0, 0, 0, nullptr);
 			if (MsgPipeH)std::cout << "pipe open success" << std::endl;
 
-
-
 			std::thread([]
 				{
 					while (ConnectNamedPipe(MsgPipeH,nullptr))
 					{
-						//WriteFile()
+						OutQueue.back();
+						//WriteFile(MsgPipeH,);
 					}
 				}).detach();
 
