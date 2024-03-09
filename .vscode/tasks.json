@@ -8,11 +8,13 @@
                 "-fdiagnostics-color=always",
                 "-g",
                 "-std=c++20",
+                //"-shared",
                 //"-w",
                 //"-O3",
                 "${fileDirname}\\*.cpp",
                 "-o",
-                "${fileDirname}\\..\\g++build\\DebugHook.exe"
+                "${fileDirname}\\..\\g++build\\DebugHook.exe",
+                //"${fileDirname}\\..\\g++build\\DllHook.dll"
             ],
             "options": {
                 "cwd": "${fileDirname}\\..\\g++build"
