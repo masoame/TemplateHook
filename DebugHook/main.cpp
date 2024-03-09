@@ -2,6 +2,6 @@
 
 int main()
 {
-	LoadLibraryA("DllHook.dll");
+	//LoadLibraryA("DllHook.dll");
 	system("pause");
 }
