@@ -19,7 +19,7 @@ namespace Pipe
 				{
 					while (ConnectNamedPipe(MsgPipeH,nullptr))
 					{
-						OutQueue.back();
+						//OutQueue.back();
 						//WriteFile(MsgPipeH,);
 					}
 				}).detach();
