@@ -21,7 +21,7 @@ namespace Pipe
 				{
 					while (ConnectNamedPipe(MsgPipeH,nullptr))
 					{
-						WriteFile()
+						//WriteFile()
 					}
 				}).detach();
 
