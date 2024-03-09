@@ -11,7 +11,7 @@ namespace Pipe
 	AutoHandle<> PipeIO::MsgPipeH{};
 
 	PipeIO pout, pin, io;
-
+	std::string pendl("\n");
 	std::thread PipeIO::PipeInit([]
 		{
 			MsgPipeH = CreateNamedPipeW(MsgPipeName, PIPE_ACCESS_OUTBOUND, PIPE_TYPE_BYTE, 1, 0, 0, 0, nullptr);
@@ -55,7 +55,7 @@ namespace Pipe
 			PipeInit.detach();
 		});
 
-	PipeIO& PipeIO::operator<<(const std::string&& str)
+	PipeIO& PipeIO::operator<<(const std::string& str)
 	{
 		std::unique_lock lock(PipeIO::OutQueuemtx, std::try_to_lock);
 		OutQueue.emplace(str);

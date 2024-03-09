@@ -14,7 +14,7 @@ namespace Pipe
 		static AutoHandle<> MsgPipeH;
 		static AutoHandle<> CtrlPipeH;
 
-		PipeIO& operator<<(const std::string&&);
+		PipeIO& operator<<(const std::string&);
 		PipeIO& operator<<(const auto&& str)
 		{
 			std::stringstream temp;
@@ -27,5 +27,6 @@ namespace Pipe
 
 	};
 	extern PipeIO pout, pin, io;
+	extern std::string pendl;
 
 }

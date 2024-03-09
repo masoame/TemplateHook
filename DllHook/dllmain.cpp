@@ -14,7 +14,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
 		break;
 	case DLL_THREAD_ATTACH:
 		if (DllHook::RegisterHook::Insert_ThreadDebug(GetCurrentThreadId()))
-			Pipe::pout << GetCurrentThreadId() << "线程打入成功\n";
+			Pipe::pout << GetCurrentThreadId() << "线程打入成功" << Pipe::pendl;
 		break;
 	case DLL_THREAD_DETACH:
 	{
