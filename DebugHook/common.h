@@ -21,7 +21,7 @@ namespace os
 	inline std::optional<std::wstring> GetModuleFileNameW(HMODULE module = NULL)
 	{
 		std::vector<wchar_t> buffer(MAX_PATH);
-		if (GetModuleFileNameW(module, buffer.data(), MAX_PATH)) return buffer.data();
+		if (GetModuleFileNameW(module, buffer.data(), MAX_PATH)) return std::move(std::wstring(buffer.data()));
 		return {};
 	}
 }

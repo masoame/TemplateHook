@@ -8,7 +8,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
 	{
 	case DLL_PROCESS_ATTACH:
 	{
-		auto a = DllHook::GetImportDirectory(GetModuleHandleA("DebugHook.exe"));
+		auto a = DllHook::GetImportDirectory(GetModuleHandleA(nullptr));
 		Pipe::pout << a->str();
 	}
 		break;
