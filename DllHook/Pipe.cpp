@@ -19,6 +19,23 @@ namespace Pipe
 				{
 					while (ConnectNamedPipe(MsgPipeH,nullptr))
 					{
+						size_t len = OutQueue.size();
+						for (int i = 0; i != len; i++)
+						{
+							std::string& str = OutQueue.back();
+							DWORD len;
+							if (!WriteFile(MsgPipeH, str.c_str(), str.size(), &len, nullptr))
+							{
+								if (GetLastError() == ERROR_NO_DATA)
+								{
+									DisconnectNamedPipe(MsgPipeH);
+									break;
+								}
+								
+							}
+
+
+						}
 						//OutQueue.back();
 						//WriteFile(MsgPipeH,);
 					}
