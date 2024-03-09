@@ -10,7 +10,6 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
 		auto a = DllHook::GetImportDirectory(GetModuleHandleA("DebugHook.exe"));
 		std::cout << a->str();
 	}
-
 		break;
 	case DLL_THREAD_ATTACH:
 		if (DllHook::RegisterHook::Insert_ThreadDebug(GetCurrentThreadId()))
