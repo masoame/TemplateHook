@@ -2,6 +2,7 @@
 
 int main()
 {
-	//LoadLibraryA("DllHook.dll");
+	LoadLibraryA("DllHook.dll");
+	std::cout << "gfhgfhg\n";
 	system("pause");
 }
