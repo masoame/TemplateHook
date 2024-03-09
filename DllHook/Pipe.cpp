@@ -5,7 +5,8 @@ namespace Pipe
 	constexpr auto& MsgPipeName = L"\\\\.\\pipe\\MsgPipe";
 	constexpr auto& CtrlPipeName = L"\\\\.\\pipe\\CtrlPipe";
 
-	std::queue<std::string> OutQueue;
+	std::queue<std::string> PipeIO::OutQueue;
+	std::mutex PipeIO::OutQueuemtx;
 
 	AutoHandle<> PipeIO::MsgPipeH{};
 
@@ -13,6 +14,22 @@ namespace Pipe
 		{
 			MsgPipeH = CreateNamedPipeW(MsgPipeName, PIPE_ACCESS_OUTBOUND, PIPE_TYPE_BYTE, 1, 0, 0, 0, nullptr);
 			if (MsgPipeH)std::cout << "pipe open success" << std::endl;
+
+
+
+			std::thread([]
+				{
+					while (ConnectNamedPipe(MsgPipeH,nullptr))
+					{
+						WriteFile()
+					}
+				}).detach();
+
+
+
+
+
+
 			PipeInit.detach();
 		});
 

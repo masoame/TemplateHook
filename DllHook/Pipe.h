@@ -9,6 +9,7 @@ namespace Pipe
 		static std::thread PipeInit;
 
 		static std::queue<std::string> OutQueue;
+		static std::mutex OutQueuemtx;
 
 		static AutoHandle<> MsgPipeH;
 		static AutoHandle<> CtrlPipeH;
