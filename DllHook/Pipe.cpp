@@ -2,7 +2,6 @@
 
 namespace Pipe
 {
-
 	constexpr auto& MsgPipeName = L"\\\\.\\pipe\\MsgPipe";
 	constexpr auto& CtrlPipeName = L"\\\\.\\pipe\\CtrlPipe";
 
@@ -10,7 +9,7 @@ namespace Pipe
 	std::queue<ctrlframe> PipeIO::InQueue;
 	std::mutex PipeIO::OutQueuemtx;
 	std::mutex PipeIO::InQueuemtx;
-	
+
 	AutoHandle<> PipeIO::MsgPipeH{};
 	AutoHandle<> PipeIO::CtrlPipeH{};
 	std::stringstream PipeIO::ss;
@@ -22,8 +21,8 @@ namespace Pipe
 		{
 			MsgPipeH = CreateNamedPipeW(MsgPipeName, PIPE_ACCESS_OUTBOUND, PIPE_TYPE_BYTE, 1, 0, 0, 0, nullptr);
 			if (MsgPipeH)std::cout << "MsgPipe open success" << std::endl;
-			CtrlPipeH = CreateNamedPipeW(CtrlPipeName,PIPE_ACCESS_INBOUND,PIPE_TYPE_BYTE,1,0,0,0,nullptr);
-			if(CtrlPipeH)std::cout << "CtrlPipe open success" << std::endl;
+			CtrlPipeH = CreateNamedPipeW(CtrlPipeName, PIPE_ACCESS_INBOUND, PIPE_TYPE_BYTE, 1, 0, 0, 0, nullptr);
+			if (CtrlPipeH)std::cout << "CtrlPipe open success" << std::endl;
 
 			std::thread([]
 				{
@@ -60,11 +59,14 @@ namespace Pipe
 						Sleep(10);
 					}
 				}).detach();
-			std::thread([]
-				{
-
-				}).detach();
-			PipeInit.detach();
+				std::thread([]
+					{
+						while (true)
+						{
+							if (ConnectNamedPipe(CtrlPipeH, nullptr))std::cout << "" << std::endl;
+						}
+					}).detach();
+					PipeInit.detach();
 		});
 
 	ctrlframe& PipeIO::operator>>(ctrlframe& cf)
@@ -72,4 +74,3 @@ namespace Pipe
 		return cf;
 	}
 }
-

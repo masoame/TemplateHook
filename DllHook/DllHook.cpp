@@ -176,7 +176,7 @@ namespace DllHook
 	INT3Hook::~INT3Hook()
 	{
 		if (this->Address == nullptr) return;
-		
+
 		std::unique_lock lock(INT3Hook::mtx, std::try_to_lock);
 		UnHook();
 		INT3Hook::AddressToVEH.erase(this->Address);
@@ -266,7 +266,7 @@ namespace DllHook
 		{
 			CONTEXT tempContext = global_context;
 			std::unique_lock lock(mtx, std::try_to_lock);
-			for (auto&[key,val] : ThrIdToRegister)
+			for (auto& [key, val] : ThrIdToRegister)
 			{
 				AutoHandle th = OpenThread(THREAD_ALL_ACCESS, FALSE, key);
 				if (!SetThreadContext(th, &tempContext))continue;

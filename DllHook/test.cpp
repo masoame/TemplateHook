@@ -61,6 +61,4 @@ DllHook::INT3Hook killzb1((LPVOID)0x00545B1A, [](_EXCEPTION_POINTERS* info)
 
 #else
 
-
-
 #endif

@@ -1,7 +1,6 @@
 #pragma once
 #include"common.h"
 
-
 namespace Pipe
 {
 	struct ctrlframe
@@ -40,5 +39,4 @@ namespace Pipe
 	};
 	extern const PipeIO pout, pin, io;
 	extern const std::string pendl;
-
 }

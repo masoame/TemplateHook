@@ -11,7 +11,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
 		auto a = DllHook::GetImportDirectory(GetModuleHandleA(nullptr));
 		Pipe::pout << a->str();
 	}
-		break;
+	break;
 	case DLL_THREAD_ATTACH:
 		if (DllHook::RegisterHook::Insert_ThreadDebug(GetCurrentThreadId()))
 			Pipe::pout << GetCurrentThreadId() << "线程打入成功" << Pipe::pendl;
@@ -21,7 +21,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
 		std::unique_lock lock(DllHook::RegisterHook::mtx, std::try_to_lock);
 		DllHook::RegisterHook::ThrIdToRegister.erase(GetCurrentThreadId());
 	}
-		break;
+	break;
 	case DLL_PROCESS_DETACH:
 
 		break;

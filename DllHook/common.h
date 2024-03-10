@@ -44,5 +44,3 @@ private:
 	struct HandleCleaner { void operator()(void* h) { if (h != INVALID_HANDLE_VALUE)HandleCloser()(PermissivePointer{ h }); } };
 	std::unique_ptr<void, HandleCleaner> h;
 };
-
-

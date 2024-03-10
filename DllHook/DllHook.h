@@ -44,7 +44,7 @@ namespace DllHook
 		operator CONTEXT() const;
 		PVECTORED_EXCEPTION_HANDLER fc[5];
 
-		DebugRegister():Dr0(0), Dr1(0), Dr2(0), Dr3(0), Dr6{ 0 }, Dr7{ 0 } {};
+		DebugRegister() :Dr0(0), Dr1(0), Dr2(0), Dr3(0), Dr6{ 0 }, Dr7{ 0 } {};
 		DebugRegister(const CONTEXT& context) :Dr0(context.Dr0), Dr1(context.Dr1), Dr2(context.Dr2), Dr3(context.Dr3), Dr6{ context.Dr6 }, Dr7{ context.Dr7 } {};
 
 		bool GetDr6Bits(type local) const;

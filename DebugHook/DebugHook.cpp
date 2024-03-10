@@ -4,7 +4,6 @@ namespace DebugHook
 {
 	std::unique_ptr<char[]> LoadFile(const wchar_t* filename)
 	{
-		
 		std::ifstream file(filename, std::ios::in | std::ios::binary | std::ios::ate);
 		auto filesize = file.tellg();
 		file.seekg(std::ios::beg);
