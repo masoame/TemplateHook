@@ -6,8 +6,11 @@ namespace Pipe
 	struct ctrlframe
 	{
 		size_t len;
-	private:
 		std::unique_ptr<char[]> buf;
+		ctrlframe(size_t ilen, std::unique_ptr<char[]>&& ibuf)noexcept :len(ilen), buf(ibuf.release()) {};
+		ctrlframe(ctrlframe&& cf)noexcept :len(cf.len), buf(cf.buf.release()) {};
+		void operator=(ctrlframe&& cf)noexcept { len = cf.len; buf = std::move(cf.buf); };
+
 	};
 	struct PipeIO
 	{
@@ -22,7 +25,7 @@ namespace Pipe
 		static AutoHandle<> CtrlPipeH;
 
 		template<typename T>
-		const PipeIO& operator<<(T&& str) const
+		const PipeIO& operator<<(T&& str)const
 		{
 			ss << std::forward<T>(str);
 			std::unique_lock lockqueue(OutQueuemtx, std::try_to_lock);
@@ -32,7 +35,7 @@ namespace Pipe
 			ss.clear();
 			return *this;
 		}
-		ctrlframe& operator>>(ctrlframe& cf);
+		const PipeIO& operator>>(ctrlframe& cf)const;
 	private:
 		static std::stringstream ss;
 		static std::mutex ssmtx;
