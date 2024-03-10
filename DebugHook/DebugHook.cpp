@@ -175,10 +175,6 @@ namespace DebugHook
 		IMAGE_IMPORT_DESCRIPTOR ImpDes;
 		PIMAGE_IMPORT_BY_NAME IMBN = (PIMAGE_IMPORT_BY_NAME)Name;
 		IMAGE_THUNK_DATA _IAT, _INT;
-		//RVA大小4字节
-		int32_t Prc_RVA = 0;
-		//序号大小2字节
-		int16_t Ordinals = 0;
 
 		//读取DOS头
 		if (!ReadProcessMemory(ProcessHandle, BaseAddress, &DosHeader, sizeof(DosHeader), 0) && (DosHeader.e_magic != 0x5A4D)) return nullptr;
@@ -336,7 +332,7 @@ namespace DebugHook
 	{
 		//处理器的寄存器数据相关结构体
 		CONTEXT ctx;
-		auto& e = pde->u.Exception.ExceptionRecord;
+		const auto& e = pde->u.Exception.ExceptionRecord;
 
 		if (e.ExceptionCode == EXCEPTION_BREAKPOINT)
 		{
