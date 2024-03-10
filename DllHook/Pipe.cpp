@@ -9,9 +9,11 @@ namespace Pipe
 	std::queue<std::string> PipeIO::OutQueue;
 	std::mutex PipeIO::OutQueuemtx;
 	AutoHandle<> PipeIO::MsgPipeH{};
+	std::stringstream PipeIO::ss;
+	std::mutex PipeIO::ssmtx;
 
-	PipeIO pout, pin, io;
-	std::string pendl("\n");
+	const PipeIO pout, pin, io;
+	const std::string pendl("\n");
 	std::thread PipeIO::PipeInit([]
 		{
 			MsgPipeH = CreateNamedPipeW(MsgPipeName, PIPE_ACCESS_OUTBOUND, PIPE_TYPE_BYTE, 1, 0, 0, 0, nullptr);
@@ -54,14 +56,6 @@ namespace Pipe
 				}).detach();
 			PipeInit.detach();
 		});
-
-	PipeIO& PipeIO::operator<<(const std::string& str)
-	{
-		std::unique_lock lock(PipeIO::OutQueuemtx, std::try_to_lock);
-		OutQueue.emplace(str);
-		return *this;
-	}
-
 
 	PipeIO& PipeIO::operator>>(char*)
 	{

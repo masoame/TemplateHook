@@ -14,19 +14,22 @@ namespace Pipe
 		static AutoHandle<> MsgPipeH;
 		static AutoHandle<> CtrlPipeH;
 
-		PipeIO& operator<<(const std::string&);
-		PipeIO& operator<<(const auto&& str)
+		template<typename T>
+		const PipeIO& operator<<(T&& str) const
 		{
-			std::stringstream temp;
-			temp << str;
-			std::unique_lock lock(PipeIO::OutQueuemtx, std::try_to_lock);
-			OutQueue.emplace(temp.str());
+			ss << std::forward<T>(str);
+			std::unique_lock lockqueue(OutQueuemtx, std::try_to_lock);
+			std::unique_lock lockss(ssmtx, std::try_to_lock);
+			OutQueue.emplace(std::move(ss.str()));
+			ss.str("");
 			return *this;
 		}
 		PipeIO& operator>>(char*);
-
+	private:
+		static std::stringstream ss;
+		static std::mutex ssmtx;
 	};
-	extern PipeIO pout, pin, io;
-	extern std::string pendl;
+	extern const PipeIO pout, pin, io;
+	extern const std::string pendl;
 
 }

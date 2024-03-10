@@ -11,6 +11,7 @@
 #include<sstream>
 #include<optional>
 #include<queue>
+#include<type_traits>
 
 #include<WinSock2.h>
 #include<windows.h>
@@ -18,13 +19,6 @@
 #include<psapi.h>
 
 #pragma comment(lib, "Ws2_32.lib")
-
-inline std::optional<std::wstring> GetModuleFileNameW(HMODULE module = NULL)
-{
-	std::vector<wchar_t> buffer(MAX_PATH);
-	if (GetModuleFileNameW(module, buffer.data(), MAX_PATH)) return std::move(std::wstring(buffer.data()));
-	return {};
-}
 
 struct PermissivePointer
 {

@@ -2,6 +2,8 @@
 
 int main()
 {
-	LoadLibraryA("DllHook.dll");
+
+	DebugHook::InjectDll(GetCurrentProcessId(), L"DllHook.dll");
+
 	system("pause");
 }
