@@ -93,7 +93,4 @@ namespace Pipe
 		InQueue.pop();
 		return *this;
 	}
-
-
-
 }
