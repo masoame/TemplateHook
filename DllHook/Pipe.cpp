@@ -93,9 +93,4 @@ namespace Pipe
 		InQueue.pop();
 		return *this;
 	}
-<<<<<<< HEAD
-=======
-
-
->>>>>>> 5a5c637ab10de9330a59549840b722e893214c16
 }
