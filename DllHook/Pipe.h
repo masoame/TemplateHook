@@ -4,12 +4,20 @@
 
 namespace Pipe
 {
+	struct ctrlframe
+	{
+		size_t len;
+	private:
+		std::unique_ptr<char[]> buf;
+	};
 	struct PipeIO
 	{
 		static std::thread PipeInit;
 
 		static std::queue<std::string> OutQueue;
+		static std::queue<ctrlframe> InQueue;
 		static std::mutex OutQueuemtx;
+		static std::mutex InQueuemtx;
 
 		static AutoHandle<> MsgPipeH;
 		static AutoHandle<> CtrlPipeH;
@@ -25,7 +33,7 @@ namespace Pipe
 			ss.clear();
 			return *this;
 		}
-		PipeIO& operator>>(char*);
+		ctrlframe& operator>>(ctrlframe& cf);
 	private:
 		static std::stringstream ss;
 		static std::mutex ssmtx;

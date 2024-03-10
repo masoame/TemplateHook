@@ -6,10 +6,10 @@
             "command": "g++.exe",
             "args": [
                 "-fdiagnostics-color=always",
-                "-g",
+                //"-g",
                 "-std=c++23",
                 "-shared",
-                "-w",
+                //"-w",
                 //"-O3",
                 "${fileDirname}\\*.cpp",
                 "-o",
