@@ -19,14 +19,11 @@
 
 #pragma comment(lib, "Ws2_32.lib")
 
-namespace os
+inline std::optional<std::wstring> GetModuleFileNameW(HMODULE module = NULL)
 {
-	inline std::optional<std::wstring> GetModuleFileNameW(HMODULE module = NULL)
-	{
-		std::vector<wchar_t> buffer(MAX_PATH);
-		if (GetModuleFileNameW(module, buffer.data(), MAX_PATH)) return buffer.data();
-		return {};
-	}
+	std::vector<wchar_t> buffer(MAX_PATH);
+	if (GetModuleFileNameW(module, buffer.data(), MAX_PATH)) return std::move(std::wstring(buffer.data()));
+	return {};
 }
 
 struct PermissivePointer
