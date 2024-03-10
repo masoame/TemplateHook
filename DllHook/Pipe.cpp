@@ -60,7 +60,7 @@ namespace Pipe
 
 					while (true)
 					{
-						if (ConnectNamedPipe(CtrlPipeH, nullptr))std::cout << "MsgPipe Client link success!!!" << std::endl;
+						if (ConnectNamedPipe(CtrlPipeH, nullptr))std::cout << "CtrlPipe Client link success!!!" << std::endl;
 						else if (GetLastError() == ERROR_NO_DATA)
 						{
 							DisconnectNamedPipe(CtrlPipeH);
@@ -68,11 +68,11 @@ namespace Pipe
 							continue;
 						}
 						DWORD framelen,temp;
-						while (ReadFile(MsgPipeH, &framelen, sizeof(framelen), &temp, nullptr))
+						while (ReadFile(CtrlPipeH, &framelen, sizeof(framelen), &temp, nullptr))
 						{
 							if (framelen == 0)continue;
 							std::unique_ptr<char[]> buf(new char[framelen]);
-							if (ReadFile(MsgPipeH, buf.get(), framelen, &temp, nullptr) && framelen == temp)
+							if (ReadFile(CtrlPipeH, buf.get(), framelen, &temp, nullptr) && framelen == temp)
 							{
 								std::cout << buf.get() << std::endl;
 								lock.lock();
