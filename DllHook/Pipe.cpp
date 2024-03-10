@@ -10,7 +10,7 @@ namespace Pipe
 	std::queue<ctrlframe> PipeIO::InQueue;
 	std::mutex PipeIO::OutQueuemtx;
 	std::mutex PipeIO::InQueuemtx;
-	
+
 	AutoHandle<> PipeIO::MsgPipeH{};
 	AutoHandle<> PipeIO::CtrlPipeH{};
 	std::stringstream PipeIO::ss;
@@ -62,7 +62,10 @@ namespace Pipe
 				}).detach();
 			std::thread([]
 				{
-
+					while(true)
+					{
+						if(ConnectNamedPipe(CtrlPipeH,nullptr))std::cout <<""<<std::endl;
+					}
 				}).detach();
 			PipeInit.detach();
 		});
