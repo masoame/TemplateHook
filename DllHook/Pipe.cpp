@@ -21,7 +21,7 @@ namespace Pipe
 		{
 			MsgPipeH = CreateNamedPipeW(MsgPipeName, PIPE_ACCESS_OUTBOUND, PIPE_TYPE_BYTE, 1, 0, 0, 0, nullptr);
 			if (MsgPipeH)std::cout << "MsgPipe open success" << std::endl;
-			CtrlPipeH = CreateNamedPipeW(CtrlPipeName, PIPE_ACCESS_INBOUND, PIPE_TYPE_BYTE, 1, 0, 0, 0, nullptr);
+			CtrlPipeH = CreateNamedPipeW(CtrlPipeName, PIPE_ACCESS_INBOUND, PIPE_READMODE_BYTE, 1, 0, 0, 0, nullptr);
 			if (CtrlPipeH)std::cout << "CtrlPipe open success" << std::endl;
 
 			std::thread([]
@@ -34,8 +34,8 @@ namespace Pipe
 						{
 							DisconnectNamedPipe(MsgPipeH);
 							std::cout << "MsgPipe Client Disconnect" << std::endl;
+							continue;
 						}
-
 						size_t len = OutQueue.size();
 						for (int i = 0; i != len; i++)
 						{
@@ -43,18 +43,13 @@ namespace Pipe
 							std::string& str = OutQueue.front();
 							lock.unlock();
 							DWORD temp;
-							if (!WriteFile(MsgPipeH, str.c_str(), (DWORD)str.size() + 1, &temp, nullptr))
+							if (WriteFile(MsgPipeH, str.c_str(), (DWORD)str.size() + 1, &temp, nullptr))
 							{
-								if (GetLastError() == ERROR_NO_DATA)
-								{
-									DisconnectNamedPipe(MsgPipeH);
-									std::cout << "MsgPipe Client Disconnect" << std::endl;
-									break;
-								}
+								lock.lock();
+								OutQueue.pop();
+								lock.unlock();
 							}
-							lock.lock();
-							OutQueue.pop();
-							lock.unlock();
+							else if (GetLastError() == ERROR_NO_DATA)  break; 
 						}
 						Sleep(10);
 					}
@@ -62,6 +57,7 @@ namespace Pipe
 			std::thread([]
 				{
 					std::unique_lock lock(PipeIO::InQueuemtx, std::defer_lock);
+
 					while (true)
 					{
 						if (ConnectNamedPipe(CtrlPipeH, nullptr))std::cout << "MsgPipe Client link success!!!" << std::endl;
@@ -69,31 +65,25 @@ namespace Pipe
 						{
 							DisconnectNamedPipe(CtrlPipeH);
 							std::cout << "CtrlPipe Client Disconnect" << std::endl;
+							continue;
 						}
 						DWORD framelen,temp;
-						if (ReadFile(MsgPipeH, &framelen, sizeof(framelen), &temp, nullptr))
+						while (ReadFile(MsgPipeH, &framelen, sizeof(framelen), &temp, nullptr))
 						{
 							if (framelen == 0)continue;
 							std::unique_ptr<char[]> buf(new char[framelen]);
 							if (ReadFile(MsgPipeH, buf.get(), framelen, &temp, nullptr) && framelen == temp)
 							{
+								std::cout << buf.get() << std::endl;
 								lock.lock();
-								InQueue.emplace(ctrlframe{ framelen,std::move(buf)});
+								InQueue.emplace(ctrlframe{ framelen,std::move(buf) });
 								lock.unlock();
 							}
 						}
-						if (GetLastError() == ERROR_NO_DATA)
-						{
-							DisconnectNamedPipe(MsgPipeH);
-							std::cout << "MsgPipe Client Disconnect" << std::endl;
-							continue;
-						}
-
+						if (GetLastError() == ERROR_NO_DATA)continue;
 					}
-
-
 				}).detach();
-				PipeInit.detach();
+			PipeInit.detach();
 		});
 
 	const PipeIO& PipeIO::operator>>(ctrlframe& cf)const
