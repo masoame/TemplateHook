@@ -20,8 +20,9 @@ namespace Pipe
 			ss << std::forward<T>(str);
 			std::unique_lock lockqueue(OutQueuemtx, std::try_to_lock);
 			std::unique_lock lockss(ssmtx, std::try_to_lock);
-			OutQueue.emplace(std::move(ss.str()));
+			OutQueue.emplace(ss.str());
 			ss.str("");
+			ss.clear();
 			return *this;
 		}
 		PipeIO& operator>>(char*);
