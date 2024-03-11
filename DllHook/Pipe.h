@@ -21,7 +21,7 @@ namespace Pipe
 		static std::mutex OutQueuemtx;
 		static std::mutex InQueuemtx;
 
-		static AutoHandle<> MsgPipeH;
+		static AutoHandle<> LogPipeH;
 		static AutoHandle<> CtrlPipeH;
 
 		template<typename T>
