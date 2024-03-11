@@ -9,6 +9,8 @@
 #include<optional>
 #include<memory>
 #include<sstream>
+#include<mutex>
+#include<queue>
 
 #include<windows.h>
 #include<tlhelp32.h>
