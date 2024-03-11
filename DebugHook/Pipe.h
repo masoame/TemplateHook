@@ -17,10 +17,11 @@ namespace Pipe
         static std::mutex Msgssmtx;
 
         static std::queue<ctrlframe> CtrlQueue;
+        static std::queue<std::string> MsgQueue;
 
         const PipeIO& operator <<(auto&& str)
         {
-            std::unique_lock lock(Ctrlss,std::try_to_lock);
+            std::unique_lock lock(Ctrlssmtx,std::try_to_lock);
             Ctrlss << std::forward(str);
             return *this;
         }
