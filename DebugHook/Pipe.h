@@ -33,5 +33,10 @@ namespace Pipe
             
             return *this;
         }
+        const PipeIO& operator >>(std::string& str)
+        {
+            if(!LogQueue.empty()) str=LogQueue.front();
+            return *this;
+        }
     };
 }
