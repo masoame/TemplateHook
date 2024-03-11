@@ -30,10 +30,10 @@ namespace Pipe
             }
             return *this;
         }
-        const PipeIO& operator <<(ctrlframe&& str)
+        const PipeIO& operator <<(ctrlframe&& cf)
         {
             std::unique_lock lock(CtrlQueuemtx, std::try_to_lock);
-            
+            CtrlQueue.emplace(std::forward<ctrlframe>(cf));
             return *this;
         }
     };

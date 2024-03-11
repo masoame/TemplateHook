@@ -10,6 +10,9 @@ namespace Pipe
 	std::mutex PipeIO::LogQueuemtx;
 	std::mutex PipeIO::CtrlQueuemtx;
 
+	std::queue<ctrlframe> PipeIO::CtrlQueue;
+    std::queue<std::string> PipeIO::LogQueue;
+
 
 	std::thread PipeIO::PipeInit([]
 	{
@@ -38,6 +41,9 @@ namespace Pipe
 				}
 				temp += buf;
 				std::cout << temp;
+				lock.lock();
+				LogQueue.emplace(temp);
+				lock.unlock();
 				temp = "";
 			}
 
@@ -46,7 +52,24 @@ namespace Pipe
 		if(CtrlPipeH)
 		std::thread([]
 		{
+			std::unique_lock lock(PipeIO::CtrlQueuemtx, std::defer_lock);
 			std::cout << "success to link CtrlServer!!!!"<<std::endl;
+			size_t len = CtrlQueue.size();
+			for (int i = 0; i != len; i++)
+			{
+				lock.lock();
+				ctrlframe& cf = CtrlQueue.front();
+				lock.unlock();
+				DWORD temp;
+				if (WriteFile(LogPipeH, &cf.framelen, sizeof(cf.framelen), &temp, nullptr) && WriteFile(LogPipeH, cf.buf.get(), cf.framelen, &temp, nullptr))
+				{
+					lock.lock();
+					CtrlQueue.pop();
+					lock.unlock();
+				}
+				else if (GetLastError() == ERROR_NO_DATA)  break; 
+			}
+
 		}).detach();
 
 
