@@ -12,6 +12,9 @@ namespace Pipe
     {
         static std::thread PipeInit;
 
+        static AutoHandle<> LogPipeH;
+        static AutoHandle<> CtrlPipeH;
+        
         static std::queue<ctrlframe> CtrlQueue;
         static std::queue<std::string> LogQueue;
         static std::mutex LogQueuemtx;
@@ -31,11 +34,6 @@ namespace Pipe
         {
             std::unique_lock lock(CtrlQueue, std::try_to_lock);
             
-            return *this;
-        }
-        const PipeIO& operator >>(std::string& str)
-        {
-            if(!LogQueue.empty()) str=LogQueue.front();
             return *this;
         }
     };
