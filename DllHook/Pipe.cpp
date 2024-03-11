@@ -2,15 +2,15 @@
 
 namespace Pipe
 {
-	constexpr auto& MsgPipeName = L"\\\\.\\pipe\\MsgPipe";
-	constexpr auto& CtrlPipeName = L"\\\\.\\pipe\\CtrlPipe";
+	constexpr const auto& LogPipeName = L"\\\\.\\pipe\\LogPipe";
+	constexpr const auto& CtrlPipeName = L"\\\\.\\pipe\\CtrlPipe";
 
 	std::queue<std::string> PipeIO::OutQueue;
 	std::queue<ctrlframe> PipeIO::InQueue;
 	std::mutex PipeIO::OutQueuemtx;
 	std::mutex PipeIO::InQueuemtx;
 
-	AutoHandle<> PipeIO::MsgPipeH{};
+	AutoHandle<> PipeIO::LogPipeH{};
 	AutoHandle<> PipeIO::CtrlPipeH{};
 	std::stringstream PipeIO::ss;
 	std::mutex PipeIO::ssmtx;
@@ -19,8 +19,8 @@ namespace Pipe
 	const std::string pendl("\n");
 	std::thread PipeIO::PipeInit([]
 		{
-			MsgPipeH = CreateNamedPipeW(MsgPipeName, PIPE_ACCESS_OUTBOUND, PIPE_TYPE_BYTE, 1, 0, 0, 0, nullptr);
-			if (MsgPipeH)std::cout << "MsgPipe open success" << std::endl;
+			LogPipeH = CreateNamedPipeW(LogPipeName, PIPE_ACCESS_OUTBOUND, PIPE_TYPE_BYTE, 1, 0, 0, 0, nullptr);
+			if (LogPipeH)std::cout << "LogPipe open success" << std::endl;
 			CtrlPipeH = CreateNamedPipeW(CtrlPipeName, PIPE_ACCESS_INBOUND, PIPE_READMODE_BYTE, 1, 0, 0, 0, nullptr);
 			if (CtrlPipeH)std::cout << "CtrlPipe open success" << std::endl;
 
@@ -29,11 +29,11 @@ namespace Pipe
 					std::unique_lock lock(PipeIO::OutQueuemtx, std::defer_lock);
 					while (true)
 					{
-						if (ConnectNamedPipe(MsgPipeH, nullptr))std::cout << "MsgPipe Client link success!!!" << std::endl;
+						if (ConnectNamedPipe(LogPipeH, nullptr))std::cout << "LogPipe Client link success!!!" << std::endl;
 						else if (GetLastError() == ERROR_NO_DATA)
 						{
-							DisconnectNamedPipe(MsgPipeH);
-							std::cout << "MsgPipe Client Disconnect" << std::endl;
+							DisconnectNamedPipe(LogPipeH);
+							std::cout << "LogPipe Client Disconnect" << std::endl;
 							continue;
 						}
 						size_t len = OutQueue.size();
@@ -43,7 +43,7 @@ namespace Pipe
 							std::string& str = OutQueue.front();
 							lock.unlock();
 							DWORD temp;
-							if (WriteFile(MsgPipeH, str.c_str(), (DWORD)str.size() + 1, &temp, nullptr))
+							if (WriteFile(LogPipeH, str.c_str(), (DWORD)str.size() + 1, &temp, nullptr))
 							{
 								lock.lock();
 								OutQueue.pop();
@@ -57,7 +57,6 @@ namespace Pipe
 			std::thread([]
 				{
 					std::unique_lock lock(PipeIO::InQueuemtx, std::defer_lock);
-
 					while (true)
 					{
 						if (ConnectNamedPipe(CtrlPipeH, nullptr))std::cout << "CtrlPipe Client link success!!!" << std::endl;

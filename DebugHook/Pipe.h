@@ -10,19 +10,27 @@ namespace Pipe
     
     struct PipeIO
     {
-        static std::stringstream Ctrlss;
-        static std::stringstream Msgss;
-
-        static std::mutex Ctrlssmtx;
-        static std::mutex Msgssmtx;
+        static std::thread PipeInit;
 
         static std::queue<ctrlframe> CtrlQueue;
-        static std::queue<std::string> MsgQueue;
+        static std::queue<std::string> LogQueue;
+        static std::mutex LogQueuemtx;
+        static std::mutex CtrlQueuemtx;
 
-        const PipeIO& operator <<(auto&& str)
+        const PipeIO& operator >>(std::string& str)
         {
-            std::unique_lock lock(Ctrlssmtx,std::try_to_lock);
-            Ctrlss << std::forward(str);
+            std::unique_lock lock(LogQueuemtx, std::try_to_lock);
+            if (!LogQueue.empty())
+            {
+                str = LogQueue.front();
+                LogQueue.pop();
+            }
+            return *this;
+        }
+        const PipeIO& operator <<(ctrlframe&& str)
+        {
+            std::unique_lock lock(CtrlQueue, std::try_to_lock);
+            
             return *this;
         }
     };
