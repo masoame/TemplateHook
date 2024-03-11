@@ -20,12 +20,12 @@ namespace Pipe
 	std::thread PipeIO::PipeInit([]
 		{
 			LogPipeH = CreateNamedPipeW(LogPipeName, PIPE_ACCESS_OUTBOUND, PIPE_TYPE_BYTE, 1, 0, 0, 0, nullptr);
-			if (LogPipeH)std::cout << "LogPipe open success" << std::endl;
 			CtrlPipeH = CreateNamedPipeW(CtrlPipeName, PIPE_ACCESS_INBOUND, PIPE_READMODE_BYTE, 1, 0, 0, 0, nullptr);
-			if (CtrlPipeH)std::cout << "CtrlPipe open success" << std::endl;
 
+			if(LogPipeH)
 			std::thread([]
 				{
+					if (LogPipeH)std::cout << "LogPipe open success" << std::endl;
 					std::unique_lock lock(PipeIO::OutQueuemtx, std::defer_lock);
 					while (true)
 					{
@@ -54,8 +54,11 @@ namespace Pipe
 						Sleep(10);
 					}
 				}).detach();
+
+			if (CtrlPipeH)
 			std::thread([]
 				{
+					if (CtrlPipeH)std::cout << "CtrlPipe open success" << std::endl;
 					std::unique_lock lock(PipeIO::InQueuemtx, std::defer_lock);
 					while (true)
 					{
