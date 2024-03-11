@@ -28,7 +28,7 @@ namespace Pipe
 			char buf[1024];
 			buf[1023] = 0;
 			DWORD len;
-			while (ReadFile(PipeHandle, buf, 1023, &len, nullptr))
+			while (ReadFile(LogPipeH, buf, 1023, &len, nullptr))
 			{
 				if (len == 1023 && buf[1022] != 0)
 				{
