@@ -7,8 +7,8 @@ namespace Pipe
 	AutoHandle<> PipeIO::LogPipeH{};
 	AutoHandle<> PipeIO::CtrlPipeH{};
 
-	std::mutex LogQueuemtx;
-	std::mutex CtrlQueuemtx;
+	std::mutex PipeIO::LogQueuemtx;
+	std::mutex PipeIO::CtrlQueuemtx;
 
 
 	std::thread PipeIO::PipeInit([]
@@ -23,6 +23,7 @@ namespace Pipe
 		if(LogPipeH)
 		std::thread([]
 		{
+			std::cout << "success to link LogServer!!!!"<<std::endl;
 			std::unique_lock lock(PipeIO::LogQueuemtx, std::defer_lock);
 			std::string temp;
 			char buf[1024];
@@ -45,7 +46,7 @@ namespace Pipe
 		if(CtrlPipeH)
 		std::thread([]
 		{
-
+			std::cout << "success to link CtrlServer!!!!"<<std::endl;
 		}).detach();
 
 

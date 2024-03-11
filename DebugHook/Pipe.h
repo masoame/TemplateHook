@@ -32,7 +32,7 @@ namespace Pipe
         }
         const PipeIO& operator <<(ctrlframe&& str)
         {
-            std::unique_lock lock(CtrlQueue, std::try_to_lock);
+            std::unique_lock lock(CtrlQueuemtx, std::try_to_lock);
             
             return *this;
         }
