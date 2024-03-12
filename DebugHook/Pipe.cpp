@@ -72,7 +72,6 @@ namespace Pipe
 
 		}).detach();
 
-
 		PipeInit.detach();
 	});
 }
