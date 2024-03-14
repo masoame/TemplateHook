@@ -31,7 +31,7 @@ DllHook::INT3Hook addsun((LPVOID)0x0041F4D0, [](_EXCEPTION_POINTERS* info)
 				Sleep(0);
 				addsun.Hook();
 			}).detach();
-			info->ContextRecord->Ecx *= 10;
+			info->ContextRecord->Ecx *= -10;
 			addsun.UnHook();
 			return (LONG)EXCEPTION_CONTINUE_EXECUTION;
 	});

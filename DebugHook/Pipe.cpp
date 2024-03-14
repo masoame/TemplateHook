@@ -13,19 +13,23 @@ namespace Pipe
 	std::queue<ctrlframe> PipeIO::CtrlQueue;
     std::queue<std::string> PipeIO::LogQueue;
 
+	HANDLE PipeIO::trid=0;
 
-	std::thread PipeIO::PipeInit([]
+	BOOL PipeIO::PipeLink()
 	{
 		SECURITY_ATTRIBUTES logsa{0},ctrlsa{0};
 		logsa.nLength=sizeof(SECURITY_ATTRIBUTES);
 		ctrlsa.nLength=sizeof(SECURITY_ATTRIBUTES);
 
-		LogPipeH = CreateFileW(LogPipeName,GENERIC_READ,FILE_SHARE_READ | FILE_SHARE_WRITE |FILE_SHARE_DELETE,&logsa,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,nullptr);
-		CtrlPipeH = CreateFileW(CtrlPipeName,GENERIC_WRITE,FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,&ctrlsa,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,nullptr);
+		if(!LogPipeH)
+		LogPipeH = CreateFileW(LogPipeName,GENERIC_READ,FILE_SHARE_READ | FILE_SHARE_WRITE |FILE_SHARE_DELETE,&logsa,OPEN_EXISTING,0,nullptr);
+		if (!CtrlPipeH)
+		CtrlPipeH = CreateFileW(CtrlPipeName,GENERIC_WRITE,FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,&ctrlsa,OPEN_EXISTING,0,nullptr);
 
 		if(LogPipeH)
 		std::thread([]
 		{
+			trid = GetCurrentProcess();
 			std::cout << "success to link LogServer!!!!"<<std::endl;
 			std::unique_lock lock(PipeIO::LogQueuemtx, std::defer_lock);
 			std::string temp;
@@ -72,6 +76,13 @@ namespace Pipe
 
 		}).detach();
 
-		PipeInit.detach();
-	});
+		return LogPipeH && CtrlPipeH;
+	}
+	BOOL PipeIO::PipeClose()
+	{
+		CtrlPipeH = 0;
+		
+		TerminateThread(trid,0);
+		return 0;
+	}
 }

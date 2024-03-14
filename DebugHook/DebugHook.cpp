@@ -322,8 +322,10 @@ namespace DebugHook
 			}
 			//继续debug
 			ContinueDebugEvent(de.dwProcessId, de.dwThreadId, dcstatus);
+			Sleep(1);
 		}
-		Sleep(1);
+
+		return TRUE;
 	}
 
 	//接收到中断信号后

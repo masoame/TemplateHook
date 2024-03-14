@@ -10,7 +10,9 @@ namespace Pipe
     
     struct PipeIO
     {
-        static std::thread PipeInit;
+        static BOOL PipeLink();
+        static BOOL PipeClose();
+        static HANDLE trid;
 
         static AutoHandle<> LogPipeH;
         static AutoHandle<> CtrlPipeH;
