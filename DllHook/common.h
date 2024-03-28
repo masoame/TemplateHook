@@ -11,6 +11,7 @@
 #include<sstream>
 #include<optional>
 #include<queue>
+#include<functional>
 #include<type_traits>
 
 #include<WinSock2.h>
