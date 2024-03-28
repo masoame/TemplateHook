@@ -1,5 +1,7 @@
 #include"DebugHook.h"
 #include"Pipe.h"
+
+
 int main()
 {
 	auto a = DebugHook::SearchProcess(L"Start.exe");

@@ -19,7 +19,7 @@ namespace DebugHook
 
 	//单纯只是要遍历所有句柄也可以是同EnumProcess或EnumProcessModules
 	std::unique_ptr<std::vector<PROCESSENTRY32>> ProcessInfo();
-	std::unique_ptr<std::vector<MODULEENTRY32>> ModuleInfo(DWORD th32ProcessID);
+	std::unique_ptr<std::vector<MODULEENTRY32>> ModuleInfo(DWORD th32ProcessID = GetCurrentProcessId());
 
 	//导出表
 	std::unique_ptr<std::stringstream> ShowExportTable(HANDLE ProcessHandle, HMODULE BaseAddress);

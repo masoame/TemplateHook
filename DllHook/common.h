@@ -11,12 +11,14 @@
 #include<sstream>
 #include<optional>
 #include<queue>
+#include<functional>
 #include<type_traits>
 
 #include<WinSock2.h>
 #include<windows.h>
 #include<tlhelp32.h>
 #include<psapi.h>
+#include <xmmintrin.h>
 
 #pragma comment(lib, "Ws2_32.lib")
 

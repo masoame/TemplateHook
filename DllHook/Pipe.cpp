@@ -88,6 +88,17 @@ namespace Pipe
 			PipeInit.detach();
 		});
 
+	const PipeIO& PipeIO::operator<<(auto&& str)const
+	{
+		ss << std::forward<decltype(str)>(str);
+		std::unique_lock lockqueue(OutQueuemtx, std::try_to_lock);
+		std::unique_lock lockss(ssmtx, std::try_to_lock);
+		OutQueue.emplace(ss.str());
+		ss.str("");
+		ss.clear();
+		return *this;
+	}
+
 	const PipeIO& PipeIO::operator>>(ctrlframe& cf)const
 	{
 		std::unique_lock lock(InQueuemtx,std::try_to_lock);
