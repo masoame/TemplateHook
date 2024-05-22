@@ -1,5 +1,5 @@
 #pragma once
-#include"common.h"
+#include"common.hpp"
 //²Ù×÷×¢²á±í
 namespace registry
 {

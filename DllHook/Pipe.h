@@ -1,5 +1,5 @@
 #pragma once
-#include"common.h"
+#include"common.hpp"
 
 namespace Pipe
 {
@@ -24,9 +24,9 @@ namespace Pipe
 		static AutoHandle<> LogPipeH;
 		static AutoHandle<> CtrlPipeH;
 
-		const PipeIO& operator<<(auto&& str)const;
+		inline const PipeIO& operator<<(auto&& str)const;
 
-		const PipeIO& operator>>(ctrlframe& cf)const;
+		inline const PipeIO& operator>>(ctrlframe& cf)const;
 	private:
 		static std::stringstream ss;
 		static std::mutex ssmtx;

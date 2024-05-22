@@ -32,7 +32,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="common.h">
+    <ClInclude Include="common.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="defs.h">

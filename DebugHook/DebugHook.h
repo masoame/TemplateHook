@@ -1,5 +1,5 @@
 #pragma once
-#include"common.h"
+#include"common.hpp"
 
 //»Ì÷–∂œ
 constexpr BYTE INT3 = 0xCC;
@@ -9,6 +9,7 @@ constexpr BYTE NOP = 0x90;
 
 namespace DebugHook
 {
+
 	std::unique_ptr<char[]> LoadFile(const wchar_t* filename);
 	size_t RVAtoFOA(LPVOID pFileBuffer, size_t RVA);
 
