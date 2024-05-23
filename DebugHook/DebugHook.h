@@ -9,10 +9,8 @@ constexpr BYTE NOP = 0x90;
 
 namespace DebugHook
 {
-
 	std::unique_ptr<char[]> LoadFile(const wchar_t* filename);
 	size_t RVAtoFOA(LPVOID pFileBuffer, size_t RVA);
-
 
 	//ËÑË÷¶ÔÓ¦µÄ¾ä±ú
 	std::unique_ptr<PROCESSENTRY32> SearchProcess(const wchar_t* ProcessName);

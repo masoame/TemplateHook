@@ -1,6 +1,5 @@
 #include"DllHook.h"
 
-
 namespace DllHook
 {
 #ifndef _WIN64

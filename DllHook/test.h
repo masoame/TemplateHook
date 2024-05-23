@@ -3,8 +3,6 @@
 
 #ifndef _WIN64
 
-
-
 #else
 
 #endif

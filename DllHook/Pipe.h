@@ -10,7 +10,6 @@ namespace Pipe
 		ctrlframe(size_t ilen, std::unique_ptr<char[]>&& ibuf)noexcept :len(ilen), buf(ibuf.release()) {};
 		ctrlframe(ctrlframe&& cf)noexcept :len(cf.len), buf(cf.buf.release()) {};
 		void operator=(ctrlframe&& cf)noexcept { len = cf.len; buf = std::move(cf.buf); };
-
 	};
 	struct PipeIO
 	{

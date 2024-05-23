@@ -11,12 +11,11 @@
 #include<sstream>
 #include<mutex>
 #include<queue>
-
+#include<format>
 #include<windows.h>
 #include<tlhelp32.h>
 #include<Psapi.h>
 #include<winternl.h>
-
 
 //自定义命名空间
 namespace os
@@ -27,7 +26,6 @@ namespace os
 		std::vector<wchar_t> buffer(MAX_PATH);
 		if (GetModuleFileNameW(module, buffer.data(), MAX_PATH)) return buffer.data();
 		return {};
-		
 	}
 }
 
